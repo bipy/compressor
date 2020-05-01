@@ -24,6 +24,7 @@ imageflow 预编译的 image_tool 可以实现对图片进行高质量的压缩�
 - 递归访问输入文件夹下所有图片
 - 可以指定输出文件路径，也可以在图片父目录下自动生成
 - 支持 imageflow 的主要参数，可用于调整编码格式，输出图片质量和格式，图片大小等
+- 输出统计与异常处理
 
 
 
@@ -94,14 +95,16 @@ Size: 486 KB
 
 ## 修改参数
 
+直接修改`Variables.java`文件
+
 ```java
-// 处理软件IMAGE FLOW位置
 // 例如：
-private static final String IMAGE_FLOW_TOOL_PATH = "../imageflow.exe";
+
+// 处理软件IMAGE FLOW位置
+public static final String IMAGE_FLOW_TOOL_PATH = "../imageflow.exe";
 
 // 输入路径，可以是文件夹（将递归处理所有子文件夹），如果没有全局utf-8的话要避免中文路径
-// 例如：
-private static final String INPUT_PATH = "D:\\Users\\Fidelity\\Pictures\\2020";
+public static final String INPUT_PATH = "D:\\Users\\Fidelity\\Pictures\\2020";
 
 ```
 
@@ -109,22 +112,13 @@ private static final String INPUT_PATH = "D:\\Users\\Fidelity\\Pictures\\2020";
 
 ## 启动
 
-JDK 11 以下：
-
 ```bash
 # 进入src/ 确认参数后编译
 javac -encoding UTF-8 Main.java
-# 编译完成生成 Main.class 和 CompressTask.class
+# 编译完成生成 class 文件
 
 # 运行
 java Main
-```
-
-JDK 11 及以上：
-
-```bash
-# 确认参数后直接运行即可
-java Main.java
 ```
 
 

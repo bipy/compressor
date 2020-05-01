@@ -1,16 +1,15 @@
-import java.io.File;
-
 public class CompressTask implements Runnable {
-    private File[] taskList;
+    private Picture[] taskList;
 
-    public CompressTask(File[] taskList) {
+    public CompressTask(Picture[] taskList) {
         this.taskList = taskList;
     }
 
     @Override
     public void run() {
-        for (File pic : taskList) {
-            Main.initArgs(pic);
+        for (Picture pic : taskList) {
+            pic.initArgs();
+            Main.compress(pic);
         }
     }
 }
