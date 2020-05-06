@@ -12,9 +12,7 @@ High-performance image manipulation for web servers. Includes imageflow_server, 
 
 imageflow 预编译的 image_tool 可以实现对图片进行高质量的压缩，可以在不显著影响图像质量的情况下大幅减少图片体积
 
-但在大量处理图片的情形下需要脚本来完成并行与自动化处理等功能，因此选择了 Java 来完成并行和递归处理功能，由于时间有限，与 libimageflow 的交互通过命令行工具 imageflow_toool 实现
-
-**imageflow 版本：**[v1.3.6-rc36](https://github.com/imazen/imageflow/releases/tag/v1.3.6-rc36)
+但在大量处理图片的情形下需要脚本来完成并行与自动化处理等功能，因此选择了 Java 来完成并行和递归处理功能，与 libimageflow 的交互通过命令行工具 imageflow_toool 实现
 
 
 
@@ -33,6 +31,10 @@ imageflow 预编译的 image_tool 可以实现对图片进行高质量的压缩�
 作品名称：しのぶ 🦋
 
 作品地址：[Pixiv-77458895](https://www.pixiv.net/artworks/77458895)
+
+imageflow 版本：1.3.6-rc36
+
+输出格式：JPG
 
 输出质量参数：90
 
@@ -75,9 +77,7 @@ Size: 486 KB
 
 支持的 JDK 版本为 1.8+
 
-需注意 imageflow 的位置参数
-
-项目附带的 imageflow 为 Windows 64bit 版本，其他平台需自取 [Releases](https://github.com/imazen/imageflow/releases)
+需下载 [imageflow Releases](https://github.com/imazen/imageflow/releases) 并配置 imageflow_tool 的路径
 
 
 
@@ -101,7 +101,7 @@ Size: 486 KB
 // 例如：
 
 // 处理软件IMAGE FLOW位置
-public static final String IMAGE_FLOW_TOOL_PATH = "../imageflow.exe";
+public static final String IMAGE_FLOW_TOOL_PATH = "../imageflow_tool.exe";
 
 // 输入路径，可以是文件夹（将递归处理所有子文件夹），如果没有全局utf-8的话要避免中文路径
 public static final String INPUT_PATH = "D:\\Users\\Fidelity\\Pictures\\2020";

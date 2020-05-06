@@ -1,7 +1,7 @@
 public class Variables {
     // 处理软件IMAGE FLOW位置
     public static final String IMAGE_FLOW_TOOL_PATH =
-            "D:\\Users\\Fidelity\\Desktop\\Program\\imageflow.exe";
+            "D:\\Users\\Fidelity\\Desktop\\Program\\imageflow_tool.exe";
 
     // 线程数
     public static final int THREAD_COUNT = 4;
