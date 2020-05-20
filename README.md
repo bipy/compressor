@@ -48,7 +48,7 @@ Solution: 3000 × 1688 (PNG, RGBA32)
 
 Size: 3.24 MB
 
-![](https://cdn.jsdelivr.net/gh/bipy/CDN@master/img/pid-77458895.png)
+![](https://cdn.jsdelivr.net/gh/bipy/CDN@master/repo/Image-Compressor/pid-77458895.png)
 
 
 
@@ -58,7 +58,7 @@ Solution: 3000 × 1688 (JPG, YUV)
 
 Size: 486 KB
 
-![](https://cdn.jsdelivr.net/gh/bipy/CDN@master/img/pid-77458895_compressed.jpg)
+![](https://cdn.jsdelivr.net/gh/bipy/CDN@master/repo/Image-Compressor/pid-77458895_compressed.jpg)
 
 
 
@@ -101,7 +101,7 @@ Size: 486 KB
 // 例如：
 
 // 处理软件IMAGE FLOW位置
-public static final String IMAGE_FLOW_TOOL_PATH = "../imageflow_tool.exe";
+public static final String IMAGE_FLOW_TOOL_PATH = "D:\\imageflow_tool.exe";
 
 // 输入路径，可以是文件夹（将递归处理所有子文件夹），如果没有全局utf-8的话要避免中文路径
 public static final String INPUT_PATH = "D:\\Users\\Fidelity\\Pictures\\2020";
