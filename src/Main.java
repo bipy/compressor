@@ -150,9 +150,11 @@ public class Main {
                     if (p.isAlive()) {
                         p.destroy();
                     }
+                    br.close();
                     return true;
                 }
             }
+            br.close();
             return false;
         } catch (Exception e) {
             return false;

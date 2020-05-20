@@ -1,14 +1,14 @@
 public class Variables {
     // 处理软件IMAGE FLOW位置
     public static final String IMAGE_FLOW_TOOL_PATH =
-            "D:\\Users\\Fidelity\\Desktop\\Program\\imageflow_tool.exe";
+            "D:\\Users\\Desktop\\imageflow_tool.exe";
 
     // 线程数
     public static final int THREAD_COUNT = 4;
 
     // 输入路径，可以是文件夹（将递归处理所有子文件夹），如果没有全局utf-8的话要避免中文路径
     public static final String INPUT_PATH =
-            "D:\\Users\\Fidelity\\Pictures\\1912X";
+            "D:\\Users\\Pictures\\Wallpaper";
 
     // true: 默认设置
     // false: 在OUTPUT_PATH中设置指定文件夹
@@ -44,7 +44,7 @@ public class Variables {
     public static final String OUTPUT_PATH_NAME = "compressed";
 
     // 以下勿修改 ======================================================
-    public static final String PROCESS_TYPE = "v0.1/ir4";
+    public static final String PROCESS_TYPE = "v1/querystring";
 
     public static String command = "format=" + Variables.OUTPUT_FORMAT + "&quality=" + Variables.QUALITY;
 

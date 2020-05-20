@@ -133,7 +133,7 @@ java Main
 |     OUTPUT_PATH      |      D:\\out\\      |     输出路径，默认为图片当前文件夹下新建compressed文件夹     |
 |   AUTO_OUTPUT_PATH   |     true/false      | 自动选择输出路径，true: 默认设置；false: 在OUTPUT_PATH中设置指定文件夹 |
 |   OUTPUT_PATH_NAME   |       String        |   自动生成的输出文件夹名称，AUTO_OUTPUT_PATH为false时无效    |
-|     PROCESS_TYPE     |      v0.1/ir4       |                   运行模式，固定参数勿修改                   |
+|     PROCESS_TYPE     |   v1/querystring    |                   运行模式，固定参数勿修改                   |
 |       QUALITY        |       0 ~ 100       |                     输出图片质量，推荐90                     |
 |    OUTPUT_FORMAT     |       jpg/png       |                       输出图片编码格式                       |
 |        RESIZE        |     true/false      |                       是否改变图片大小                       |
