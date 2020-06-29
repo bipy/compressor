@@ -38,7 +38,7 @@ public class Variables {
     public static final int HEIGHT = 1080;
 
     // 输出图片文件名后缀
-    public static final String OUTPUT_PIC_POSTFIX = "compressed";
+    public static final String OUTPUT_PIC_POSTFIX = "_compressed";
 
     // 输出图片文件夹名称
     public static final String OUTPUT_PATH_NAME = "compressed";

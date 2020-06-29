@@ -1,15 +1,13 @@
 public class CompressTask implements Runnable {
-    private Picture[] taskList;
+    private Picture task;
 
-    public CompressTask(Picture[] taskList) {
-        this.taskList = taskList;
+    public CompressTask(Picture task) {
+        this.task = task;
     }
 
     @Override
     public void run() {
-        for (Picture pic : taskList) {
-            pic.initArgs();
-            Main.compress(pic);
-        }
+        task.initArgs();
+        Main.compress(task);
     }
 }

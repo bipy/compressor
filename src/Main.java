@@ -23,7 +23,7 @@ public class Main {
         if (inputFile.isDirectory()) {
             find(inputFile);
             sum = picList.size();
-            process(picList.toArray(new Picture[sum]));
+            process();
         } else if (inputFile.isFile()) {
             process(new Picture(inputFile));
         }
@@ -100,20 +100,14 @@ public class Main {
         compress(inputFile);
     }
 
-    public static void process(Picture[] picFiles) {
+    public static void process() {
         // 多线程处理
         if (Variables.THREAD_COUNT > 1) {
             System.out.println("======= Multi Thread Mode =======");
             ExecutorService service = Executors.newFixedThreadPool(Variables.THREAD_COUNT);
-            int batch = picFiles.length / Variables.THREAD_COUNT;
-            for (int i = 0; i < Variables.THREAD_COUNT - 1; i++) {
-                int startPos = i * batch;
-                int endPos = (i + 1) * batch;
-                service.submit(new CompressTask(Arrays.copyOfRange(picFiles, startPos, endPos)));
+            for(Picture pic : picList){
+                service.submit(new CompressTask(pic));
             }
-            // 最后一组处理剩下的所有图片
-            service.submit(new CompressTask(Arrays.copyOfRange(picFiles,
-                    (Variables.THREAD_COUNT - 1) * batch, picFiles.length)));
             service.shutdown();
             try {
                 service.awaitTermination(72,TimeUnit.HOURS);
