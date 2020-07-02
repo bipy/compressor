@@ -15,10 +15,10 @@ public class Picture {
         // 确定输出路径
         String output;
         if (Variables.AUTO_OUTPUT_PATH || Variables.OUTPUT_PATH.isEmpty()) {
-            output = String.format("%s\\%s\\%s%s.%s", file.getParent(),
+            output = String.format("%s/%s/%s%s.%s", file.getParent(),
                     Variables.OUTPUT_PATH_NAME, name, Variables.OUTPUT_PIC_POSTFIX, Variables.OUTPUT_FORMAT);
         } else {
-            output = String.format("%s\\%s%s.%s", Variables.OUTPUT_PATH, name,
+            output = String.format("%s/%s%s.%s", Variables.OUTPUT_PATH, name,
                     Variables.OUTPUT_PIC_POSTFIX, Variables.OUTPUT_FORMAT);
         }
         // 打包参数

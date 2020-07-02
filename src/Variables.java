@@ -1,14 +1,14 @@
 public class Variables {
     // 处理软件IMAGE FLOW位置
     public static final String IMAGE_FLOW_TOOL_PATH =
-            "D:\\Users\\Desktop\\imageflow_tool.exe";
+            "D:\\imageflow_tool.exe";
 
     // 线程数
     public static final int THREAD_COUNT = 4;
 
     // 输入路径，可以是文件夹（将递归处理所有子文件夹），如果没有全局utf-8的话要避免中文路径
     public static final String INPUT_PATH =
-            "D:\\Users\\Pictures\\Wallpaper";
+            "D:\\Pictures";
 
     // true: 默认设置
     // false: 在OUTPUT_PATH中设置指定文件夹
@@ -20,7 +20,7 @@ public class Variables {
     // 输出质量 0-100 可选，推荐90
     public static final int QUALITY = 90;
 
-    // 图片编码格式，可以与输出格式不同
+    // 图片编码格式，可以与输入格式不同
     public static final String OUTPUT_FORMAT = "jpg";
 
     // 是否改变图片大小

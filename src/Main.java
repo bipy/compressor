@@ -79,7 +79,7 @@ public class Main {
         if (!currentPicList.isEmpty()) {
             File outputPath;
             if (Variables.AUTO_OUTPUT_PATH || Variables.OUTPUT_PATH.isEmpty()) {
-                outputPath = new File(currentFile.getPath() + "\\" + Variables.OUTPUT_PATH_NAME);
+                outputPath = new File(currentFile.getPath() + "/" + Variables.OUTPUT_PATH_NAME);
             } else {
                 outputPath = new File(Variables.OUTPUT_PATH);
             }
