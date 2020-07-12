@@ -12,7 +12,7 @@ High-performance image manipulation for web servers. Includes imageflow_server, 
 
 imageflow 预编译的 image_tool 可以实现对图片进行高质量的压缩，可以在不显著影响图像质量的情况下大幅减少图片体积
 
-但在大量处理图片的情形下需要脚本来完成并行与自动化处理等功能，因此选择了 Java 来完成并行和递归处理功能，与 libimageflow 的交互通过命令行工具 imageflow_toool 实现
+但在大量处理图片的情形下需要脚本来完成并行与自动化处理等功能，因此选择了 Java 来完成并行和递归处理功能，与 libimageflow 的交互通过命令行工具 imageflow_tool 实现
 
 
 
@@ -64,12 +64,12 @@ Size: 486 KB
 
 # Usage
 
-注意：Windows下不支持中文路径
+注意：Windows 下不支持中文路径 (**经测试，在最新版本 imageflow 中已支持中文**)
 
 **解决方法：**
 
 1. 修改为英文路径
-2. 控制面板 --> 时钟和区域 --> 区域 --> 管理 --> 更改系统区域设置 --> 使用Unicode UTF-8提供全球语言支持
+2. 控制面板 --> 时钟和区域 --> 区域 --> 管理 --> 更改系统区域设置 --> 使用 Unicode UTF-8 提供全球语言支持
 
 
 
@@ -83,28 +83,30 @@ Size: 486 KB
 
 ## 默认的参数配置
 
-将图片压缩为 jpg 格式
+将图片压缩为 **jpg** 格式
 
-输出质量90%，不修改图片大小
+输出质量 **90%**
 
-输出路径为同级目录下的`compressed`文件夹
+**不修改**图片大小
 
-输出图片文件名后添加`_compressed`后缀
+输出路径为同级目录下的 `compressed` 文件夹
+
+输出图片文件名后添加 `_compressed` 后缀
 
 
 
 ## 修改参数
 
-直接修改`Variables.java`文件
+直接修改 `Variables.java` 文件
 
 ```java
 // 例如：
 
-// 处理软件IMAGE FLOW位置
+// 处理软件 IMAGE FLOW 位置
 public static final String IMAGE_FLOW_TOOL_PATH = "D:\\imageflow_tool.exe";
 
-// 输入路径，可以是文件夹（将递归处理所有子文件夹），如果没有全局utf-8的话要避免中文路径
-public static final String INPUT_PATH = "D:\\Users\\Fidelity\\Pictures\\2020";
+// 输入路径，可以是文件夹 (将递归处理所有子文件夹)
+public static final String INPUT_PATH = "D:\\Pictures\\2020";
 
 ```
 
@@ -113,7 +115,7 @@ public static final String INPUT_PATH = "D:\\Users\\Fidelity\\Pictures\\2020";
 ## 启动
 
 ```bash
-# 进入src/ 确认参数后编译
+# 进入 src/ 确认参数后编译
 javac -encoding UTF-8 Main.java
 # 编译完成生成 class 文件
 
