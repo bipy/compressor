@@ -37,11 +37,14 @@ public class Variables {
     // 指定高度，RESIZE为false时无效
     public static final int HEIGHT = 1080;
 
+    // 直接覆写原文件 (原文件会被删除)
+    public static final Boolean OVERWRITE = false;
+
     // 输出图片文件名后缀
-    public static final String OUTPUT_PIC_POSTFIX = "_compressed";
+    public static String OUTPUT_PIC_POSTFIX = "_compressed";
 
     // 输出图片文件夹名称
-    public static final String OUTPUT_PATH_NAME = "compressed";
+    public static String OUTPUT_PATH_NAME = "compressed";
 
     // 以下勿修改 ======================================================
     public static final String PROCESS_TYPE = "v1/querystring";

@@ -1,6 +1,5 @@
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,7 +40,7 @@ public class Main {
     public static void init() {
         // 检查参数是否合法
         try {
-            if (!new File(Variables.IMAGE_FLOW_TOOL_PATH).exists()) {
+            if (!new File(Variables.IMAGE_FLOW_TOOL_PATH).exists() && !new File(Variables.IMAGE_FLOW_TOOL_PATH).canExecute()) {
                 throw new Exception("ERROR: imageflow_tool NOT FOUND");
             }
             if (!Variables.AUTO_OUTPUT_PATH && new File(Variables.OUTPUT_PATH).isFile()) {
@@ -61,6 +60,10 @@ public class Main {
                 Variables.command += "&height=" + Variables.HEIGHT;
             }
         }
+        if (Variables.OVERWRITE) {
+            Variables.OUTPUT_PATH_NAME = "";
+            Variables.OUTPUT_PIC_POSTFIX = ".compress_temp";
+        }
     }
 
     public static void find(File currentFile) {
@@ -71,7 +74,7 @@ public class Main {
             // 防止递归处理已压缩的图片
             if (file.isDirectory() && !file.getName().equals(Variables.OUTPUT_PATH_NAME)) {
                 find(file);
-            } else if (file.getName().matches(".*[.](png|jpg|jpge)$")) {
+            } else if (file.getName().toLowerCase().matches(".*[.](png|jpg|jpge)$")) {
                 currentPicList.add(new Picture(file));
             }
         }
@@ -105,13 +108,13 @@ public class Main {
         if (Variables.THREAD_COUNT > 1) {
             System.out.println("======= Multi Thread Mode =======");
             ExecutorService service = Executors.newFixedThreadPool(Variables.THREAD_COUNT);
-            for(Picture pic : picList){
+            for (Picture pic : picList) {
                 service.submit(new CompressTask(pic));
             }
             service.shutdown();
             try {
-                service.awaitTermination(72,TimeUnit.HOURS);
-            }catch (InterruptedException e){
+                service.awaitTermination(72, TimeUnit.HOURS);
+            } catch (InterruptedException e) {
                 System.out.println("运行超时");
                 System.exit(2);
             }
@@ -124,13 +127,18 @@ public class Main {
         }
     }
 
-    public static void compress(Picture pic){
-        if (!compress(pic.getArgs())) {
-            failList.add(pic);
-        } else {
+    public static Boolean overwrite(File source, File temp) {
+        return source.delete() && temp.renameTo(
+                new File(source.getPath().replaceAll("[^.]+$", Variables.OUTPUT_FORMAT)));
+    }
+
+    public static void compress(Picture pic) {
+        if (compress(pic.getArgs()) && (!Variables.OVERWRITE || overwrite(pic.getFile(), new File(pic.getArgs()[5])))) {
             System.out.println(String.format("(%d/%d) %s success",
                     count.addAndGet(1), sum, pic.getFile().getPath()));
+            return;
         }
+        failList.add(pic);
     }
 
     public static Boolean compress(String[] args) {

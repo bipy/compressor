@@ -142,7 +142,7 @@ java Main
 |     FIXED_WIDTH      |     true/false      | true: 按指定宽度缩放，false: 按指定高度缩放，只会缩小，不会放大，RESIZE为false时无效 |
 |        WIDTH         |         int         |                指定宽度，RESIZE为false时无效                 |
 |        HEIGHT        |         int         |                指定高度，RESIZE为false时无效                 |
-|  OUTPUT_PIC_POSTFIX  |       String        |                         输出图片后缀                         |
-
+|  OUTPUT_PIC_POSTFIX  |       String        |                  输出图片后缀，在拓展名之前                  |
+|      OVERWRITE       |     true/false      | 是否直接覆写原文件。为true时，OUTPUT_PATH_NAME和OUTPUT_PIC_POSTFIX无效 |
 
 
