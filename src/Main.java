@@ -40,7 +40,7 @@ public class Main {
     public static void init() {
         // 检查参数是否合法
         try {
-            if (!new File(Variables.IMAGE_FLOW_TOOL_PATH).exists() && !new File(Variables.IMAGE_FLOW_TOOL_PATH).canExecute()) {
+            if (!new File(Variables.IMAGE_FLOW_TOOL_PATH).exists() || !new File(Variables.IMAGE_FLOW_TOOL_PATH).canExecute()) {
                 throw new Exception("ERROR: imageflow_tool NOT FOUND");
             }
             if (!Variables.AUTO_OUTPUT_PATH && new File(Variables.OUTPUT_PATH).isFile()) {
