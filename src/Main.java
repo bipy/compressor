@@ -74,7 +74,7 @@ public class Main {
             // 防止递归处理已压缩的图片
             if (file.isDirectory() && !file.getName().equals(Variables.OUTPUT_PATH_NAME)) {
                 find(file);
-            } else if (file.getName().toLowerCase().matches(".*[.](png|jpg|jpge)$")) {
+            } else if (file.getName().toLowerCase().matches(".*[.](png|jpg)$")) {
                 currentPicList.add(new Picture(file));
             }
         }
@@ -134,7 +134,7 @@ public class Main {
 
     public static void compress(Picture pic) {
         if (compress(pic.getArgs()) && (!Variables.OVERWRITE || overwrite(pic.getFile(), new File(pic.getArgs()[5])))) {
-            System.out.println(String.format("(%d/%d) %s success",
+            System.out.println(String.format("(%d/%d) %s succeed",
                     count.addAndGet(1), sum, pic.getFile().getPath()));
             return;
         }
