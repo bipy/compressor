@@ -4,18 +4,11 @@ public class Variables {
             "D:\\imageflow_tool.exe";
 
     // 线程数
-    public static final int THREAD_COUNT = 4;
+    public static final int THREAD_COUNT = 8;
 
     // 输入路径，可以是文件夹（将递归处理所有子文件夹），如果没有全局utf-8的话要避免中文路径
     public static final String INPUT_PATH =
-            "D:\\Pictures";
-
-    // true: 默认设置
-    // false: 在OUTPUT_PATH中设置指定文件夹
-    public static Boolean AUTO_OUTPUT_PATH = true;
-
-    // 输出路径，默认为图片当前文件夹下新建compressed文件夹
-    public static String OUTPUT_PATH = "";
+            "D:\\Picture";
 
     // 输出质量 0-100 可选，推荐90
     public static final int QUALITY = 90;
@@ -39,6 +32,14 @@ public class Variables {
 
     // 直接覆写原文件 (原文件会被删除)
     public static final Boolean OVERWRITE = false;
+
+    // ======================= OVERWRITE 为 true 时以下设置无效 =======================
+    // true: 默认设置
+    // false: 在OUTPUT_PATH中设置指定文件夹
+    public static Boolean AUTO_OUTPUT_PATH = true;
+
+    // 输出路径，默认为图片当前文件夹下新建compressed文件夹
+    public static String OUTPUT_PATH = "";
 
     // 输出图片文件名后缀
     public static String OUTPUT_PIC_POSTFIX = "_compressed";
