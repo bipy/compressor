@@ -1,0 +1,16 @@
+{
+  "imageflow_tool": "D:\\imageflow_tool.exe",
+  "thread_count": 4,
+  "input_path": "D:\\Pictures\\2021",
+  "output_path": "",
+  "output_image": {
+    "quality": 90,
+    "output_format": "jpg",
+    "resize": {
+      "enable": false,
+      "resize_by": 0,
+      "width": 1920,
+      "height": 1080
+    }
+  }
+}
