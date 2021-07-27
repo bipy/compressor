@@ -134,7 +134,7 @@ func init() {
 	// initialize accept input format
 	acceptFormat = make(map[string]bool)
 	for _, v := range config.InputFormat {
-		acceptFormat[v] = true
+		acceptFormat[fmt.Sprintf(".%s", v)] = true
 	}
 
 	// initialize command

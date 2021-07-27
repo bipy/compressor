@@ -4,9 +4,7 @@
   "input_format": [
     "png",
     "jpg",
-    "jpeg",
-    "tiff",
-    "bmp"
+    "jpeg"
   ],
   "input_path": "D:\\Pictures\\2021",
   "output_path": "",
