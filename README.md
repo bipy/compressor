@@ -135,6 +135,7 @@ compressor -c another_config.json
 | :------------: | :---------------------------: | :----------------------------------------------------------: |
 | imageflow_tool |         imageflow.exe         |                     imageflow_tool path                      |
 |  thread_count  | lower than the number of core |                         Thread count                         |
+|  input_format  |     "png", "jpg", "jpeg"      |      Input image format (other formats will be ignored)      |
 |   input_path   |           D:\\in\\            | Input path, must be a folder (will recursively process all subfolders) |
 |  output_path   |           D:\\out\\           | Output path,  create a new folder under the parent directory of the input folder if not specified |
 |  output_image  |              {}               |                    Image related settings                    |
@@ -149,9 +150,9 @@ compressor -c another_config.json
 
 ## Image size related settings（resize）
 
-|   Name    |   Value    |                         Description                          |
-| :-------: | :--------: | :----------------------------------------------------------: |
-|  enable   | true/false |                        resize or not                         |
-| resize_by |    0/1     | 0: constrains the image by width，1: constrains the image by height |
-|   width   |    int     |                        specify width                         |
-|  height   |    int     |                        specify height                        |
+|   Name    |      Value       |                         Description                          |
+| :-------: | :--------------: | :----------------------------------------------------------: |
+|  enable   |    true/false    |                        resize or not                         |
+| resize_by | "width"/"height" | "width": constrains the image by width，"height": constrains the image by height |
+|   width   |       int        |                        specify width                         |
+|  height   |       int        |                        specify height                        |

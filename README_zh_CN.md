@@ -134,13 +134,14 @@ compressor -c another_config.json
 
 # 配置文件说明
 
-|      名称      |       可选值        |                         说明                         |
-| :------------: | :-----------------: | :--------------------------------------------------: |
-| imageflow_tool |    imageflow.exe    |                 imageflow_tool 路径                  |
-|  thread_count  | 小于CPU核心数的两倍 |                        线程数                        |
-|   input_path   |      D:\\in\\       |   输入路径，必须是文件夹（将递归处理所有子文件夹）   |
-|  output_path   |      D:\\out\\      | 输出路径，若不指定默认在输入路径父文件夹下新建文件夹 |
-|  output_image  |         {}          |                   图片输出相关设置                   |
+|      名称      |        可选值        |                         说明                         |
+| :------------: | :------------------: | :--------------------------------------------------: |
+| imageflow_tool |    imageflow.exe     |                 imageflow_tool 路径                  |
+|  thread_count  | 小于CPU核心数的两倍  |                        线程数                        |
+|  input_format  | "png", "jpg", "jpeg" |            输入图片格式（其他格式将忽略）            |
+|   input_path   |       D:\\in\\       |   输入路径，必须是文件夹（将递归处理所有子文件夹）   |
+|  output_path   |      D:\\out\\       | 输出路径，若不指定默认在输入路径父文件夹下新建文件夹 |
+|  output_image  |          {}          |                   图片输出相关设置                   |
 
 ## 图片输出相关设置（output_image）
 
@@ -152,9 +153,9 @@ compressor -c another_config.json
 
 ## 图片尺寸相关设置（resize）
 
-|   名称    |   可选值   |                 说明                 |
-| :-------: | :--------: | :----------------------------------: |
-|  enable   | true/false |           是否改变图片尺寸           |
-| resize_by |    0/1     | 0: 按指定宽度缩放，1: 按指定高度缩放 |
-|   width   |    int     |             指定图片宽度             |
-|  height   |    int     |             指定图片高度             |
+|   名称    |      可选值      |                     说明                      |
+| :-------: | :--------------: | :-------------------------------------------: |
+|  enable   |    true/false    |               是否改变图片尺寸                |
+| resize_by | "width"/"height" | width: 按指定宽度缩放，height: 按指定高度缩放 |
+|   width   |       int        |                 指定图片宽度                  |
+|  height   |       int        |                 指定图片高度                  |
