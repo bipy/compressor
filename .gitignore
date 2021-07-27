@@ -27,3 +27,6 @@
 
 # Log file
 *.log
+
+# ide
+.idea/

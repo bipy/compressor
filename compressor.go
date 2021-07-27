@@ -17,21 +17,22 @@ import (
 	"time"
 )
 
-type Config struct {
-	ImageflowTool string `json:"imageflow_tool"`
-	ThreadCount   int    `json:"thread_count"`
-	InputPath     string `json:"input_path"`
-	OutputPath    string `json:"output_path"`
+type configuration struct {
+	ImageflowTool string   `json:"imageflow_tool"`
+	ThreadCount   int      `json:"thread_count"`
+	InputFormat   []string `json:"input_format"`
+	InputPath     string   `json:"input_path"`
+	OutputPath    string   `json:"output_path"`
 	Command       string
 	ProcessType   string
 	OutputImage   struct {
 		Quality      int    `json:"quality"`
 		OutputFormat string `json:"output_format"`
 		Resize       struct {
-			Enable   bool `json:"enable"`
-			ResizeBy int  `json:"resize_by"`
-			Width    int  `json:"width"`
-			Height   int  `json:"height"`
+			Enable   bool   `json:"enable"`
+			ResizeBy string `json:"resize_by"`
+			Width    int    `json:"width"`
+			Height   int    `json:"height"`
 		} `json:"resize"`
 	} `json:"output_image"`
 }
@@ -42,13 +43,14 @@ type node struct {
 }
 
 var (
-	ID             string // use unix timestamp as process id
+	id             string // use unix timestamp as process id
 	logger         *log.Logger
-	config         = Config{} // from json
-	total, count   int32      // the number of images
-	failList       []node     // gather all failed jobs for summary
+	config         = configuration{} // from json
+	total, count   int32             // the number of images
+	failList       []node            // gather all failed jobs for summary
 	nodeCh, failCh chan node
 	wg             = sync.WaitGroup{}
+	acceptFormat   map[string]bool
 )
 
 func init() {
@@ -66,11 +68,11 @@ func init() {
 		}
 	}
 
-	// init process ID
-	ID = strconv.FormatInt(time.Now().Unix(), 10)
+	// init process id
+	id = strconv.FormatInt(time.Now().Unix(), 10)
 
 	// create log file and init logger
-	logFile, err := os.OpenFile(ID+".log", os.O_WRONLY|os.O_CREATE, 0755)
+	logFile, err := os.OpenFile(id+".log", os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
 		logger = log.New(os.Stdout, "", log.LstdFlags)
 		logger.Println("CANNOT CREATE LOG FILE")
@@ -120,7 +122,7 @@ func init() {
 			}
 		}
 	} else {
-		config.OutputPath = config.InputPath + "_" + ID
+		config.OutputPath = config.InputPath + "_" + id
 		if e := os.Mkdir(config.OutputPath, 0755); e != nil {
 			logger.Panicln("OUTPUT PATH AUTO GENERATE FAILED")
 		}
@@ -129,19 +131,25 @@ func init() {
 	// initialize process type
 	config.ProcessType = "v1/querystring"
 
+	// initialize accept input format
+	acceptFormat = make(map[string]bool)
+	for _, v := range config.InputFormat {
+		acceptFormat[v] = true
+	}
+
 	// initialize command
 	config.Command = fmt.Sprintf("format=%s&quality=%d", config.OutputImage.OutputFormat, config.OutputImage.Quality)
 	if config.OutputImage.Resize.Enable {
-		if config.OutputImage.Resize.ResizeBy == 0 {
+		if strings.ToLower(config.OutputImage.Resize.ResizeBy) == "width" {
 			config.Command += fmt.Sprintf("&width=%d", config.OutputImage.Resize.Width)
-		} else if config.OutputImage.Resize.ResizeBy == 1 {
+		} else if strings.ToLower(config.OutputImage.Resize.ResizeBy) == "height" {
 			config.Command += fmt.Sprintf("&height=%d", config.OutputImage.Resize.Height)
 		}
 	}
 
 	// initialize channel
-	nodeCh = make(chan node, 1024)
-	failCh = make(chan node, 1024)
+	nodeCh = make(chan node, 32768)
+	failCh = make(chan node, 32768)
 }
 
 // single goroutine!
@@ -153,7 +161,7 @@ func travel() {
 			return e
 		}
 		if !info.IsDir() {
-			if ext := strings.ToLower(filepath.Ext(info.Name())); ext == ".jpg" || ext == ".png" {
+			if ext := strings.ToLower(filepath.Ext(info.Name())); acceptFormat[ext] {
 				newPath := filepath.Join(config.OutputPath, path[len(config.InputPath):])
 				newPath = newPath[:len(newPath)-3] + config.OutputImage.OutputFormat
 				if err := os.MkdirAll(filepath.Dir(newPath), 0755); err != nil {
@@ -198,10 +206,10 @@ func compress() {
 			// interface
 			// increment and get (CAS)
 			v := atomic.LoadInt32(&count)
-			for ; !atomic.CompareAndSwapInt32(&count, v, v+1); {
+			for !atomic.CompareAndSwapInt32(&count, v, v+1) {
 				v = atomic.LoadInt32(&count)
 			}
-			logger.Printf("(%d/%d) %s -> %s succeed", v+1, total, j.Input, j.Output)
+			logger.Printf("(%d/%d) %s -> %s", v+1, total, j.Input, j.Output)
 		}
 	}
 
@@ -261,8 +269,7 @@ func summary() {
 		}
 	}
 	logger.Println("Process Complete!")
-	logger.Printf("Total: %d - Success: %d - Fail: %d",
-		total, total-failCount, failCount)
+	logger.Printf("Total: %d - Fail: %d", total, failCount)
 }
 
 func main() {
@@ -272,7 +279,7 @@ func main() {
 
 func usage() {
 	_, _ = fmt.Fprintf(os.Stderr,
-		`Version: 0.1
+		`Version: 0.3
 Usage: compressor [-h] [-c filename]
 
 Options:
