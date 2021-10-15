@@ -37,7 +37,7 @@ The automatic output path is the `INPUT_ID` folder under the parent directory of
 
 Keep the relative paths of all images
 
-**eg：**If the input folder is `D:\\Pictures`
+**eg**: If the input folder is `D:\\Pictures`
 
 ```
 D:\\Pictures\\myimg\\test.png -> D:\\Pictures_231453823\\myimg\\test.jpg
