@@ -3,13 +3,11 @@ package main
 import (
     "bytes"
     "compressor/common"
-    "encoding/json"
     "flag"
     "fmt"
     "image"
     "image/jpeg"
     _ "image/png"
-    "io"
     "io/ioutil"
     "log"
     "os"
@@ -21,34 +19,26 @@ import (
     "time"
 )
 
-type Config struct {
-    ThreadCount int      `json:"thread_count"`
-    InputFormat []string `json:"input_format"`
-    InputPath   string   `json:"input_path"`
-    OutputPath  string   `json:"output_path"`
-    Quality     int      `json:"quality"`
-}
-
 type node struct {
     Input  string
     Output string
 }
 
-const OutputFormat = ".jpg"
-
 var (
-    id           string // use unix timestamp as id
-    logger       *log.Logger
-    config       Config // from json
-    total, count int32  // the number of images
-    acceptFormat map[string]bool
-    jpegQuality  *jpeg.Options
-    failList     []node // gather all failed jobs for summary
-    nodeCh       chan node
-    failCh       chan node
-    wg           = sync.WaitGroup{}
-    dirMutex     = sync.Mutex{}
-    travelDone   = false
+    id       string      // use unix timestamp as id
+    logger   *log.Logger // global logger
+    config   *Config     // from json
+    failList []node      // gather all failed jobs for summary
+)
+
+// runtime variable
+var (
+    total, count int32           // the number of images
+    wg           *sync.WaitGroup // thread limit
+    dirMutex     *sync.Mutex     // dir lock for creating file
+    travelDone   bool            // if travel is finished
+    nodeCh       chan node       // task channel
+    failCh       chan node       // task channel
 )
 
 func init() {
@@ -57,77 +47,18 @@ func init() {
     configPathPtr := flag.String("c", "config.json", "Configuration Filepath")
     flag.Parse()
 
-    // init process id
+    // initialize process id
     id = strconv.FormatInt(time.Now().Unix(), 10)
 
-    // create log file and init logger
-    logFile, err := os.OpenFile(id+".log", os.O_WRONLY|os.O_CREATE, 0644)
-    if err != nil {
-        logger = log.New(os.Stdout, "", log.LstdFlags)
-        logger.Println(common.Red("Cannot Create Log File"))
-    } else {
-        logger = log.New(io.MultiWriter(os.Stdout, logFile), "", log.LstdFlags)
-    }
+    // initialize logger
+    logger = common.GetLogger(id)
 
-    // load json
-    configFile, err := ioutil.ReadFile(*configPathPtr)
-    if err != nil {
-        logger.Println(common.Red("Config File Load Failed"))
-        os.Exit(1)
-    }
+    // parse config file
+    config = ParseConfig(configPathPtr)
 
-    // parse json
-    if err := json.Unmarshal(configFile, &config); err != nil {
-        logger.Println(common.Red("Json Unmarshal Failed"))
-        os.Exit(1)
-    }
-
-    // check quality
-    if config.Quality <= 0 || config.Quality > 100 {
-        logger.Println(common.Red("Quality Value Should Between 1 and 100"))
-        os.Exit(1)
-    }
-    jpegQuality = &jpeg.Options{Quality: config.Quality}
-
-    // check input path
-    if inputInfo, err := os.Stat(config.InputPath); err != nil {
-        if os.IsNotExist(err) {
-            logger.Println(common.Red("Input Path Not Found"))
-            os.Exit(1)
-        }
-        if !inputInfo.IsDir() {
-            logger.Println(common.Red("Input Path Should Be a Directory"))
-            os.Exit(1)
-        }
-    }
-
-    // check output path
-    if config.OutputPath != "" {
-        if config.InputPath == config.OutputPath {
-            logger.Println(common.Red("Output Path Cannot Be Same As Input Path"))
-            os.Exit(1)
-        }
-        if _, err := os.Stat(config.OutputPath); err != nil {
-            if os.IsNotExist(err) {
-                if e := os.MkdirAll(config.OutputPath, 0755); e != nil {
-                    logger.Println(common.Red("Create Output Path Failed"))
-                    os.Exit(1)
-                }
-            }
-        }
-    } else {
-        config.OutputPath = config.InputPath + "_" + id
-        if e := os.Mkdir(config.OutputPath, 0755); e != nil {
-            logger.Println(common.Red("Create Output Path Failed"))
-            os.Exit(1)
-        }
-    }
-
-    // initialize accept input format
-    acceptFormat = make(map[string]bool)
-    for _, v := range config.InputFormat {
-        acceptFormat[fmt.Sprintf(".%s", v)] = true
-    }
+    travelDone = false
+    dirMutex = &sync.Mutex{}
+    wg = &sync.WaitGroup{}
 
     // initialize channel
     nodeCh = make(chan node, 32768)
@@ -146,8 +77,8 @@ func travel() {
             return e
         }
         if !info.IsDir() {
-            if ext := strings.ToLower(filepath.Ext(info.Name())); acceptFormat[ext] {
-                newPath := filepath.Join(config.OutputPath, filepath.Base(path))
+            if ext := strings.ToLower(filepath.Ext(info.Name())); config.acceptFormat[ext] {
+                newPath := filepath.Join(config.OutputPath, path[len(config.InputPath):])
                 newPath = strings.TrimSuffix(newPath, filepath.Ext(newPath)) + OutputFormat
                 if err := os.MkdirAll(filepath.Dir(newPath), 0755); err != nil {
                     logger.Println(common.Red("Create New Path Failed"))
@@ -166,28 +97,6 @@ func travel() {
     travelDone = true
 }
 
-// touch file
-func touch(filename *string) bool {
-    dirMutex.Lock()
-    defer dirMutex.Unlock()
-    touched := false
-    for i := 0; i < 7; i++ {
-        _, err := os.Stat(*filename)
-        // if file exist
-        if err == nil {
-            *filename = fmt.Sprintf("%s (%d)%s", (*filename)[:len(*filename)-len(OutputFormat)], i, OutputFormat)
-        } else if os.IsNotExist(err) {
-            // touch
-            _, err := os.OpenFile(*filename, os.O_RDONLY|os.O_CREATE, 0644)
-            if err == nil {
-                touched = true
-            }
-            break
-        }
-    }
-    return touched
-}
-
 // compress job, multiple goroutine
 func compress() {
     defer wg.Done()
@@ -202,7 +111,7 @@ func compress() {
             continue
         }
 
-        if !touch(&n.Output) {
+        if !common.Touch(&n.Output, dirMutex, MaxRenameRetry) {
             failCh <- n
             continue
         }
@@ -214,7 +123,7 @@ func compress() {
         }
 
         buf := new(bytes.Buffer)
-        err = jpeg.Encode(buf, img, jpegQuality)
+        err = jpeg.Encode(buf, img, config.jpegQuality)
         if err != nil {
             failCh <- n
             continue
@@ -239,26 +148,26 @@ func compress() {
         } else {
             logger.Printf("%s %s %s %s",
                 common.Purple(fmt.Sprintf("(%d/loading)", v+1)),
-                n.Input, common.Green("->"), n.Output)        }
+                n.Input, common.Green("->"), n.Output)
+        }
     }
 }
 
 func process() {
     defer close(failCh)
 
-    logger.Println(common.Blue("========= Pending ========="))
-    // travel filepath
-    wg.Add(1)
-    go travel()
-
     // transfer
-    // cuz failCh sender is about to close and buffer is limited
     // when process finished, failCh will be closed
     go func() {
         for n := range failCh {
             failList = append(failList, n)
         }
     }()
+
+    logger.Println(common.Blue("========= Pending ========="))
+    // travel filepath
+    wg.Add(1)
+    go travel()
 
     // multi-thread compress
     for i := 0; i < config.ThreadCount; i++ {
@@ -289,7 +198,7 @@ func main() {
 
 func usage() {
     _, _ = fmt.Fprintf(os.Stderr,
-        `Version: 2.0
+        `Version: 2.1
 Usage: compressor [-h] [-c filename]
 
 Options:
