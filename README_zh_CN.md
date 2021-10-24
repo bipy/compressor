@@ -6,6 +6,8 @@
 
 compressor 可以妥善处理好**将大批量图片压缩成为JPG格式**的任务
 
+![](https://goreportcard.com/badge/github.com/bipy/compressor)
+
 # 功能
 
 - 使用协程并行压缩，可自定义线程数

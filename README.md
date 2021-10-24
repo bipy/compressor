@@ -8,7 +8,7 @@ However, in the case of processing a large number of pictures, it is necessary t
 
 Compressor can properly handle the task of compressing a large number of pictures into JPG format.
 
-
+![](https://goreportcard.com/badge/github.com/bipy/compressor)
 
 # Features
 
