@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"compressor/common"
 	"flag"
@@ -15,36 +16,43 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"time"
 )
 
-type node struct {
+type Task struct {
 	Input  string
 	Output string
+	Data   []byte
 }
 
 var (
 	id       string      // use unix timestamp as id
 	logger   *log.Logger // global logger
 	config   *Config     // from json
-	failList []node      // gather all failed jobs for summary
+	failList []Task      // gather all failed jobs for summary
 )
 
 // runtime variable
 var (
-	total, count int32           // the number of images
-	wg           *sync.WaitGroup // thread limit
-	dirMutex     *sync.Mutex     // dir lock for creating file
-	travelDone   bool            // if travel is finished
-	nodeCh       chan node       // task channel
-	failCh       chan node       // task channel
+	total    int             // the number of images
+	wg       *sync.WaitGroup // thread limit
+	dirMutex *sync.Mutex     // dir lock for creating file
+	taskList []Task          // task slice
+	inCh     chan Task       // in-task channel
+	outCh    chan Task       // out-task channel
+	failCh   chan Task       // fail channel
+
 )
 
 func init() {
 	// parse args
 	flag.Usage = usage
-	configPathPtr := flag.String("c", "config.json", "Configuration Filepath")
+	configPathPtr := flag.String("c", "", "Configuration Filepath")
+	threadCountPtr := flag.Int("j", 4, "Thread Count")
+	inputPathPtr := flag.String("i", "", "Input Path")
+	outputPathPtr := flag.String("o", "", "Output Path")
+	qualityPtr := flag.Int("q", 90, "JPEG Quality")
+	inputFormatPtr := flag.String("f", "jpg jpeg png", "Input Format")
 	flag.Parse()
 
 	// initialize process id
@@ -53,23 +61,32 @@ func init() {
 	// initialize logger
 	logger = common.GetLogger(id)
 
-	// parse config file
-	config = ParseConfig(configPathPtr)
+	if *configPathPtr != "" {
+		// parse config file
+		config = LoadConfig(configPathPtr)
+	} else {
+		config = &Config{
+			ThreadCount:  *threadCountPtr,
+			InputFormat:  strings.Split(*inputFormatPtr, " "),
+			InputPath:    *inputPathPtr,
+			OutputPath:   *outputPathPtr,
+			Quality:      *qualityPtr,
+			jpegQuality:  nil,
+			acceptFormat: nil,
+		}
+		ParseConfig(config)
+	}
 
-	travelDone = false
 	dirMutex = &sync.Mutex{}
 	wg = &sync.WaitGroup{}
 
 	// initialize channel
-	nodeCh = make(chan node, 32768)
-	failCh = make(chan node, 32768)
+	inCh = make(chan Task, config.ThreadCount<<1)
+	outCh = make(chan Task, config.ThreadCount<<1)
+	failCh = make(chan Task, 1)
 }
 
 func travel() {
-	// close the channel cuz travel is the only sender
-	defer close(nodeCh)
-	defer wg.Done()
-
 	// find all images
 	err := filepath.Walk(config.InputPath, func(path string, info os.FileInfo, e error) error {
 		if e != nil {
@@ -84,8 +101,7 @@ func travel() {
 					logger.Println(common.Red("Create New Path Failed"))
 					os.Exit(1)
 				}
-				nodeCh <- node{Input: path, Output: newPath}
-				total++
+				taskList = append(taskList, Task{Input: path, Output: newPath})
 			}
 		}
 		return nil
@@ -94,7 +110,7 @@ func travel() {
 		logger.Println(common.Red("Walk Error"))
 		os.Exit(1)
 	}
-	travelDone = true
+	total = len(taskList)
 }
 
 // compress job, multiple goroutine
@@ -102,82 +118,133 @@ func compress() {
 	defer wg.Done()
 	// get job from channel,
 	// channel nodeCh will be closed by sender
-	for n := range nodeCh {
-		file, err := os.Open(n.Input)
+	for t := range inCh {
+		file, err := os.Open(t.Input)
 		// check if success
 		if err != nil {
 			// if failed, push to fail channel (multi-sender)
-			failCh <- n
+			failCh <- t
 			continue
 		}
 
-		if !common.Touch(&n.Output, dirMutex, MaxRenameRetry) {
-			failCh <- n
+		if !common.Touch(&t.Output, dirMutex, MaxRenameRetry) {
+			failCh <- t
 			continue
 		}
 
 		img, _, err := image.Decode(file)
 		if err != nil {
-			failCh <- n
+			failCh <- t
 			continue
 		}
 
 		buf := new(bytes.Buffer)
 		err = jpeg.Encode(buf, img, config.jpegQuality)
 		if err != nil {
-			failCh <- n
+			failCh <- t
 			continue
 		}
 
-		err = ioutil.WriteFile(n.Output, buf.Bytes(), 0644)
+		t.Data = buf.Bytes()
+		outCh <- t
+	}
+}
+
+func writeToFiles() {
+	defer wg.Done()
+	count := 0
+	for t := range outCh {
+		err := ioutil.WriteFile(t.Output, t.Data, 0644)
 		if err != nil {
-			failCh <- n
+			failCh <- t
 			continue
 		}
+		count++
+		logger.Printf("%s %s %s %s",
+			common.Green(fmt.Sprintf("(%d/%d)", count, total)),
+			t.Input, common.Green("->"), t.Output)
+	}
+}
 
-		// interface
-		// increment and get (CAS)
-		v := atomic.LoadInt32(&count)
-		for !atomic.CompareAndSwapInt32(&count, v, v+1) {
-			v = atomic.LoadInt32(&count)
-		}
-		if travelDone {
-			logger.Printf("%s %s %s %s",
-				common.Purple(fmt.Sprintf("(%d/%d)", v+1, total)),
-				n.Input, common.Green("->"), n.Output)
-		} else {
-			logger.Printf("%s %s %s %s",
-				common.Purple(fmt.Sprintf("(%d/loading)", v+1)),
-				n.Input, common.Green("->"), n.Output)
-		}
+// transfer
+// when process finished, failCh will be closed
+func transferFailList() {
+	defer wg.Done()
+	for t := range failCh {
+		failList = append(failList, t)
+	}
+}
+
+// transfer
+// close the channel cuz this is the only sender
+func transferTaskList() {
+	defer close(inCh)
+	defer wg.Done()
+
+	for t := range taskList {
+		inCh <- taskList[t]
 	}
 }
 
 func process() {
-	defer close(failCh)
-
-	// transfer
-	// when process finished, failCh will be closed
-	go func() {
-		for n := range failCh {
-			failList = append(failList, n)
+	// confirm tasks
+	logger.Println(common.Green("Input Path:"), config.InputPath)
+	logger.Println(common.Green("Output Path:"), config.OutputPath)
+	logger.Println(common.Green("Thread Count:"), strconv.Itoa(config.ThreadCount))
+	logger.Println(common.Green("Accept Format:"), strings.Join(config.InputFormat, " "))
+	logger.Println(common.Green("JPEG Quality:"), strconv.Itoa(config.Quality))
+	logger.Println(common.Yellow("Continue? (Y/n)"))
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		input := strings.ToLower(scanner.Text())
+		if input == "n" {
+			logger.Println(common.Red("Abort!"))
+			os.Exit(1)
+		} else if input != "" && input != "y" {
+			logger.Println(common.Yellow("Continue? (Y/n)"))
+		} else {
+			break
 		}
-	}()
+	}
+	if _, err := os.Stat(config.OutputPath); err != nil {
+		if os.IsNotExist(err) {
+			if e := os.MkdirAll(config.OutputPath, 0755); e != nil {
+				logger.Println(common.Red("Create Output Path Failed"))
+				os.Exit(1)
+			}
+		}
+	}
+	// travel filepath
+	travel()
+	logger.Println(common.Green("Found:"), strconv.Itoa(len(taskList)))
 
 	logger.Println(common.Blue("========= Pending ========="))
-	// travel filepath
+	go transferFailList()
+	go writeToFiles()
+
 	wg.Add(1)
-	go travel()
+	go transferTaskList()
 
 	// multi-thread compress
 	for i := 0; i < config.ThreadCount; i++ {
 		wg.Add(1)
 		go compress()
 	}
-
 	// block main thread until all goroutine is finished
 	wg.Wait()
-	logger.Println(common.Blue("========= Done ========="))
+
+	// close by order
+	// close writeToFiles()
+	wg.Add(1)
+	close(outCh)
+	wg.Wait()
+
+	// close transferFailList()
+	wg.Add(1)
+	close(failCh)
+	wg.Wait()
+
+	logger.Println(common.Blue("=========  Done!  ========="))
 }
 
 func summary() {
@@ -198,8 +265,8 @@ func main() {
 
 func usage() {
 	_, _ = fmt.Fprintf(os.Stderr,
-		`Version: 2.1
-Usage: compressor [-h] [-c filename]
+		`Version: 2.2
+Usage: compressor [-h] [Options]
 
 Options:
   -h

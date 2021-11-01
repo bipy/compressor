@@ -19,11 +19,9 @@ compressor 可以妥善处理好**将大批量图片压缩成为JPG格式**的�
 - 异常处理
 - 跨平台支持
 
-# 用法
+# 使用方法
 
-## 默认的参数配置
-
-将图片压缩为 **jpg** 格式
+**默认**将图片压缩为 `jpg` 格式
 
 输出质量 **90%**
 
@@ -42,27 +40,48 @@ D:\\Pictures\\myimg\\test.png -> D:\\Pictures_231453823\\myimg\\test.jpg
 D:\\Pictures\\mypic\\hahaha.png -> D:\\Pictures_231453823\\mypic\\hahaha.jpg
 ```
 
-
-
-## 修改参数
-
-直接修改 `config.json` 文件
-
-
-
 ## 启动
 
 下载对应 Release 并配置
 
 ```bash
-# 无参数，使用相对路径下的 config.json
-compressor
-
 # 指定配置文件
-compressor -c another_config.json
+compressor -c config.json
+
+# CLI 模式
+# 8 线程; 质量 80; 输入路径 ~/Pictures
+compressor -i ~/Pictures -j 8 -q 80
+
+# 完整用法
+compressor -h
 ```
 
+## 完整用法
 
+```
+Version: 2.x
+Usage: compressor [-h] [Options]
+
+Options:
+  -h
+    	show this help
+  -c string
+    	Configuration Filepath
+  -f string
+    	Input Format (default "jpg jpeg png")
+  -i string
+    	Input Path
+  -j int
+    	Thread Count (default 4)
+  -o string
+    	Output Path
+  -q int
+    	JPEG Quality (default 90)
+```
+
+## 修改参数
+
+直接修改 `config.json` 文件
 
 # 配置文件说明
 

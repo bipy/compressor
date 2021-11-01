@@ -27,7 +27,7 @@ type Config struct {
 	acceptFormat map[string]bool // input file format
 }
 
-func ParseConfig(configPathPtr *string) *Config {
+func LoadConfig(configPathPtr *string) *Config {
 	// load json
 	configFile, err := ioutil.ReadFile(*configPathPtr)
 	if err != nil {
@@ -43,6 +43,12 @@ func ParseConfig(configPathPtr *string) *Config {
 		os.Exit(1)
 	}
 
+	ParseConfig(config)
+
+	return config
+}
+
+func ParseConfig(config *Config) {
 	// check quality
 	if config.Quality < JpegQualityMin || config.Quality > JpegQualityMax {
 		logger.Println(common.Red("Quality Value Should Between 1 and 100"))
@@ -68,20 +74,8 @@ func ParseConfig(configPathPtr *string) *Config {
 			logger.Println(common.Red("Output Path Cannot Be Same As Input Path"))
 			os.Exit(1)
 		}
-		if _, err := os.Stat(config.OutputPath); err != nil {
-			if os.IsNotExist(err) {
-				if e := os.MkdirAll(config.OutputPath, 0755); e != nil {
-					logger.Println(common.Red("Create Output Path Failed"))
-					os.Exit(1)
-				}
-			}
-		}
 	} else {
 		config.OutputPath = config.InputPath + "_" + id
-		if e := os.Mkdir(config.OutputPath, 0755); e != nil {
-			logger.Println(common.Red("Create Output Path Failed"))
-			os.Exit(1)
-		}
 	}
 
 	config.jpegQuality = &jpeg.Options{Quality: config.Quality}
@@ -91,6 +85,4 @@ func ParseConfig(configPathPtr *string) *Config {
 	for _, v := range config.InputFormat {
 		config.acceptFormat[fmt.Sprintf(".%s", v)] = true
 	}
-
-	return config
 }

@@ -30,3 +30,5 @@
 
 # ide
 .idea/
+
+build/

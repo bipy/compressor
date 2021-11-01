@@ -23,9 +23,7 @@ Compressor can properly handle the task of compressing a large number of picture
 
 # Usage
 
-## Default
-
-Compress the picture into **jpg** format
+**Default** compress the picture into `jpg` format
 
 Output quality **90%**
 
@@ -44,27 +42,50 @@ D:\\Pictures\\myimg\\test.png -> D:\\Pictures_231453823\\myimg\\test.jpg
 D:\\Pictures\\mypic\\hahaha.png -> D:\\Pictures_231453823\\mypic\\hahaha.jpg
 ```
 
-
-
-## Modify Configuration
-
-Modify the file `config.json` directly
-
-
-
 ## Run
 
 Download the release and configure
 
 ```bash
-# No argument, using config.json under the relative path
-compressor
-
 # Specify configuration
-compressor -c another_config.json
+compressor -c config.json
+
+# CLI Mode
+# 8 threads; quality 80; input path ~/Pictures
+compressor -i ~/Pictures -j 8 -q 80
+
+# full usage
+compressor -h
+```
+
+## Full Usage
+
+```
+Version: 2.x
+Usage: compressor [-h] [Options]
+
+Options:
+  -h
+    	show this help
+  -c string
+    	Configuration Filepath
+  -f string
+    	Input Format (default "jpg jpeg png")
+  -i string
+    	Input Path
+  -j int
+    	Thread Count (default 4)
+  -o string
+    	Output Path
+  -q int
+    	JPEG Quality (default 90)
 ```
 
 
+
+## Modify Configuration
+
+Modify the file `config.json` directly
 
 # Configuration Description
 
