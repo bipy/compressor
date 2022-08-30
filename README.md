@@ -61,7 +61,7 @@ compressor -h
 ## Full Usage
 
 ```
-Version: 2.x
+Version: 2.3
 Usage: compressor [-h] [Options]
 
 Options:
@@ -75,6 +75,8 @@ Options:
     	Input Path
   -j int
     	Thread Count (default 4)
+  -log
+    	Save Log as File
   -o string
     	Output Path
   -q int
@@ -89,11 +91,13 @@ Modify the file `config.json` directly
 
 # Configuration Description
 
-|     Name     |             Value             |                         Description                          |
-| :----------: | :---------------------------: | :----------------------------------------------------------: |
-| thread_count | lower than the number of core |                         Thread count                         |
-| input_format |     "png", "jpg", "jpeg"      |      Input image format (other formats will be ignored)      |
-|  input_path  |           D:\\in\\            | Input path, must be a folder (will recursively process all subfolders) |
+|     Name     |             Value             |                                            Description                                            |
+|:------------:|:-----------------------------:|:-------------------------------------------------------------------------------------------------:|
+| thread_count | lower than the number of core |                                           Thread count                                            |
+| input_format |     "png", "jpg", "jpeg"      |                        Input image format (other formats will be ignored)                         |
+|  input_path  |           D:\\in\\            |          Input path, can be a file or a folder (will recursively process all subfolders)          |
 | output_path  |           D:\\out\\           | Output path,  create a new folder under the parent directory of the input folder if not specified |
-|   quality    |            1～100             |     Determines the jpeg encoding quality. Default is 90      |
+|   quality    |             1～100             |                        Determines the jpeg encoding quality. Default is 90                        |
+| log_to_file  |             bool              |                                         save log to file                                          |
+
 

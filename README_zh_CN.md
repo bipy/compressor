@@ -59,7 +59,7 @@ compressor -h
 ## 完整用法
 
 ```
-Version: 2.x
+Version: 2.3
 Usage: compressor [-h] [Options]
 
 Options:
@@ -73,6 +73,8 @@ Options:
     	Input Path
   -j int
     	Thread Count (default 4)
+  -log
+    	Save Log as File
   -o string
     	Output Path
   -q int
@@ -85,10 +87,11 @@ Options:
 
 # 配置文件说明
 
-|     名称     |        可选值        |                           说明                           |
-| :----------: | :------------------: | :------------------------------------------------------: |
-| thread_count | 小于CPU核心数的两倍  |                          线程数                          |
-| input_format | "png", "jpg", "jpeg" |             输入图片格式（其他格式将被忽略）             |
-|  input_path  |       D:\\in\\       |     输入路径，必须是文件夹（将递归处理所有子文件夹）     |
+|      名称      |         可选值          |              说明              |
+|:------------:|:--------------------:|:----------------------------:|
+| thread_count |     小于CPU核心数的两倍      |             线程数              |
+| input_format | "png", "jpg", "jpeg" |       输入图片格式（其他格式将被忽略）       |
+|  input_path  |       D:\\in\\       |   输入路径，必须是文件夹（将递归处理所有子文件夹）   |
 | output_path  |      D:\\out\\       | 输出路径，若不指定，则默认在输入路径父文件夹下新建文件夹 |
-|   quality    |        1～100        |                  输出图片质量，推荐 90                   |
+|   quality    |        1～100         |         输出图片质量，推荐 90         |
+| log_to_file  |         bool         |           保存日志到文件            |
