@@ -7,5 +7,6 @@
   ],
   "input_path": "D:\\Pictures",
   "output_path": "",
-  "quality": 90
+  "quality": 90,
+  "log_to_file": true
 }

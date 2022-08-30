@@ -1,11 +1,8 @@
 package main
 
 import (
-	"compressor/common"
 	"encoding/json"
-	"fmt"
 	"image/jpeg"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -18,32 +15,29 @@ const (
 )
 
 type Config struct {
-	ThreadCount  int             `json:"thread_count"`
-	InputFormat  []string        `json:"input_format"`
-	InputPath    string          `json:"input_path"`
-	OutputPath   string          `json:"output_path"`
-	Quality      int             `json:"quality"`
-	jpegQuality  *jpeg.Options   // jpeg quality
-	acceptFormat map[string]bool // input file format
+	ThreadCount int               `json:"thread_count"`
+	InputFormat []string          `json:"input_format"`
+	InputPath   string            `json:"input_path"`
+	OutputPath  string            `json:"output_path"`
+	Quality     int               `json:"quality"`
+	LogToFile   bool              `json:"log_to_file"`
+	jpegQuality *jpeg.Options     // jpeg quality
+	isAccept    func(string) bool // input file format
 }
 
-func LoadConfig(configPathPtr *string) *Config {
+func LoadConfig(configPath string) *Config {
 	// load json
-	configFile, err := ioutil.ReadFile(*configPathPtr)
+	configFile, err := os.ReadFile(configPath)
 	if err != nil {
-		logger.Println(common.Red("Config File Load Failed"))
-		os.Exit(1)
+		panic("Config File Load Failed")
 	}
 
 	config := &Config{}
 
 	// parse json
 	if err := json.Unmarshal(configFile, &config); err != nil {
-		logger.Println(common.Red("Json Unmarshal Failed"))
-		os.Exit(1)
+		panic("Json Unmarshal Failed")
 	}
-
-	ParseConfig(config)
 
 	return config
 }
@@ -51,38 +45,47 @@ func LoadConfig(configPathPtr *string) *Config {
 func ParseConfig(config *Config) {
 	// check quality
 	if config.Quality < JpegQualityMin || config.Quality > JpegQualityMax {
-		logger.Println(common.Red("Quality Value Should Between 1 and 100"))
-		os.Exit(1)
-	}
-
-	// check input path
-	config.InputPath = filepath.Clean(config.InputPath)
-	if inputInfo, err := os.Stat(config.InputPath); err != nil {
-		if os.IsNotExist(err) {
-			logger.Println(common.Red("Input Path Not Found"))
-			os.Exit(1)
-		}
-		if !inputInfo.IsDir() {
-			logger.Println(common.Red("Input Path Should Be a Directory"))
-			os.Exit(1)
-		}
-	}
-
-	// check output path
-	if config.OutputPath != "" {
-		if config.InputPath == config.OutputPath {
-			logger.Println(common.Red("Output Path Cannot Be Same As Input Path"))
-			os.Exit(1)
-		}
-	} else {
-		config.OutputPath = config.InputPath + "_" + id
+		panic("Quality Value Should Between 1 and 100")
 	}
 
 	config.jpegQuality = &jpeg.Options{Quality: config.Quality}
 
+	// check input path & output path
+	config.InputPath = filepath.Clean(config.InputPath)
+	info, err := os.Stat(config.InputPath)
+	if err != nil {
+		panic(err.Error())
+	}
+	if info.IsDir() {
+		// dir mode
+		// input: dir
+		// output: dir_id / out
+		if config.OutputPath != "" {
+			if config.InputPath == config.OutputPath {
+				panic("Output Path Cannot Be Same As Input Path")
+			}
+			config.OutputPath = filepath.Clean(config.OutputPath)
+		} else {
+			config.OutputPath = config.InputPath + "_" + id
+		}
+	} else {
+		// single file mode
+		// input: file
+		// output: same dir / out
+		if config.OutputPath != "" {
+			config.OutputPath = filepath.Clean(config.OutputPath)
+		} else {
+			config.OutputPath = filepath.Dir(config.InputPath)
+		}
+	}
+
 	// initialize accept input format
-	config.acceptFormat = make(map[string]bool)
-	for _, v := range config.InputFormat {
-		config.acceptFormat[fmt.Sprintf(".%s", v)] = true
+	config.isAccept = func(s string) (ok bool) {
+		for _, v := range config.InputFormat {
+			if s == v {
+				return true
+			}
+		}
+		return false
 	}
 }
