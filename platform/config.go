@@ -14,7 +14,7 @@ const (
 )
 
 type Config struct {
-	Id          string            `json:"-"`
+	Id          string            `json:"-"` // use unix timestamp as id
 	ThreadCount int               `json:"thread_count"`
 	InputFormat []string          `json:"input_format"`
 	InputPath   string            `json:"input_path"`

@@ -21,7 +21,6 @@ type Task struct {
 }
 
 var (
-	id         string           // use unix timestamp as id
 	logger     *log.Logger      // global logger with color
 	fileLogger *log.Logger      // global logger without color
 	config     *platform.Config // from json
@@ -51,9 +50,6 @@ func init() {
 	logToFilePtr := flag.Bool("log", false, "Save Log as File")
 	flag.Parse()
 
-	// initialize process id
-	id = strconv.FormatInt(time.Now().Unix(), 10)
-
 	if *configPathPtr != "" {
 		// parse config file
 		config = platform.LoadConfig(*configPathPtr)
@@ -67,10 +63,15 @@ func init() {
 			LogToFile:   *logToFilePtr,
 		}
 	}
+
+	// initialize process id
+	config.Id = strconv.FormatInt(time.Now().Unix(), 10)
+
+	platform.ParseConfig(config)
+
 	// initialize logger
 	logger = platform.GetLogger()
 
-	platform.ParseConfig(config)
 	wg = &sync.WaitGroup{}
 
 	// initialize channel
@@ -87,7 +88,7 @@ func process() {
 	logger.Println(color.GreenString("Accept Format:"), strings.Join(config.InputFormat, ", "))
 	logger.Println(color.GreenString("JPEG Quality:"), strconv.Itoa(config.Quality))
 	if config.LogToFile {
-		logger.Println(color.GreenString("Log:"), id+".log")
+		logger.Println(color.GreenString("Log:"), config.Id+".log")
 	} else {
 		logger.Println(color.GreenString("Log:"), "stdout")
 	}
@@ -107,13 +108,13 @@ func process() {
 	}
 
 	if config.LogToFile {
-		fileLogger = platform.GetFileLogger(id)
+		fileLogger = platform.GetFileLogger(config.Id)
 		fileLogger.Println("Input Path:", config.InputPath)
 		fileLogger.Println("Output Path:", config.OutputPath)
 		fileLogger.Println("Thread Count:", strconv.Itoa(config.ThreadCount))
 		fileLogger.Println("Accept Format:", strings.Join(config.InputFormat, ", "))
 		fileLogger.Println("JPEG Quality:", strconv.Itoa(config.Quality))
-		fileLogger.Println("Log:", id+".log")
+		fileLogger.Println("Log:", config.Id+".log")
 	}
 
 	// travel filepath
