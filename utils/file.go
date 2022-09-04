@@ -1,4 +1,4 @@
-package common
+package utils
 
 import (
 	"errors"
@@ -6,16 +6,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 )
 
-// Touch file
-func Touch(filename string, dirMutex *sync.Mutex, maxRetry int) (name string, err error) {
+// Touch crate & rename file
+func Touch(filename string) (name string, err error) {
 	ext := filepath.Ext(filename)
 	baseName := strings.TrimSuffix(filename, ext)
-	dirMutex.Lock()
-	defer dirMutex.Unlock()
-	for i := 1; i < maxRetry; i++ {
+	for i := 1; i < 128; i++ {
 		_, err = os.Stat(filename)
 		// if file exist
 		if err == nil {

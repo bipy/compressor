@@ -1,4 +1,4 @@
-package main
+package platform
 
 import (
 	"encoding/json"
@@ -11,18 +11,18 @@ const (
 	JpegQualityMax = 100
 	JpegQualityMin = 1
 	OutputFormat   = ".jpg"
-	MaxRenameRetry = 7
 )
 
 type Config struct {
+	Id          string            `json:"-"`
 	ThreadCount int               `json:"thread_count"`
 	InputFormat []string          `json:"input_format"`
 	InputPath   string            `json:"input_path"`
 	OutputPath  string            `json:"output_path"`
 	Quality     int               `json:"quality"`
 	LogToFile   bool              `json:"log_to_file"`
-	jpegQuality *jpeg.Options     // jpeg quality
-	isAccept    func(string) bool // input file format
+	JpegQuality *jpeg.Options     // jpeg quality
+	IsAccept    func(string) bool // input file format
 }
 
 func LoadConfig(configPath string) *Config {
@@ -48,7 +48,7 @@ func ParseConfig(config *Config) {
 		panic("Quality Value Should Between 1 and 100")
 	}
 
-	config.jpegQuality = &jpeg.Options{Quality: config.Quality}
+	config.JpegQuality = &jpeg.Options{Quality: config.Quality}
 
 	// check input path & output path
 	config.InputPath = filepath.Clean(config.InputPath)
@@ -66,7 +66,7 @@ func ParseConfig(config *Config) {
 			}
 			config.OutputPath = filepath.Clean(config.OutputPath)
 		} else {
-			config.OutputPath = config.InputPath + "_" + id
+			config.OutputPath = config.InputPath + "_" + config.Id
 		}
 	} else {
 		// single file mode
@@ -80,7 +80,7 @@ func ParseConfig(config *Config) {
 	}
 
 	// initialize accept input format
-	config.isAccept = func(s string) (ok bool) {
+	config.IsAccept = func(s string) (ok bool) {
 		for _, v := range config.InputFormat {
 			if s == v {
 				return true

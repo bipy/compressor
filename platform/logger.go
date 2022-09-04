@@ -1,4 +1,4 @@
-package common
+package platform
 
 import (
 	"github.com/fatih/color"

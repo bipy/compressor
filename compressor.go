@@ -2,18 +2,12 @@ package main
 
 import (
 	"bufio"
-	"bytes"
-	"compressor/common"
+	"compressor/platform"
 	"flag"
 	"fmt"
 	"github.com/fatih/color"
-	"image"
-	"image/jpeg"
-	_ "image/png"
-	"io/fs"
 	"log"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -27,18 +21,17 @@ type Task struct {
 }
 
 var (
-	id         string      // use unix timestamp as id
-	logger     *log.Logger // global logger with color
-	fileLogger *log.Logger // global logger without color
-	config     *Config     // from json
-	failList   []Task      // gather all failed jobs for summary
+	id         string           // use unix timestamp as id
+	logger     *log.Logger      // global logger with color
+	fileLogger *log.Logger      // global logger without color
+	config     *platform.Config // from json
+	failList   []Task           // gather all failed jobs for summary
 )
 
 // runtime variable
 var (
 	total    int             // the number of images
 	wg       *sync.WaitGroup // thread limit
-	dirMutex *sync.Mutex     // dir lock for creating file
 	taskList []Task          // task slice
 	inCh     chan Task       // in-task channel
 	outCh    chan Task       // out-task channel
@@ -63,9 +56,9 @@ func init() {
 
 	if *configPathPtr != "" {
 		// parse config file
-		config = LoadConfig(*configPathPtr)
+		config = platform.LoadConfig(*configPathPtr)
 	} else {
-		config = &Config{
+		config = &platform.Config{
 			ThreadCount: *threadCountPtr,
 			InputFormat: strings.Split(*inputFormatPtr, " "),
 			InputPath:   *inputPathPtr,
@@ -75,130 +68,15 @@ func init() {
 		}
 	}
 	// initialize logger
-	logger = common.GetLogger()
+	logger = platform.GetLogger()
 
-	ParseConfig(config)
-
-	dirMutex = &sync.Mutex{}
+	platform.ParseConfig(config)
 	wg = &sync.WaitGroup{}
 
 	// initialize channel
 	inCh = make(chan Task, config.ThreadCount<<1)
 	outCh = make(chan Task, config.ThreadCount<<1)
 	failCh = make(chan Task, 1)
-}
-
-func travel() {
-	// find all images
-	err := filepath.WalkDir(config.InputPath, func(path string, d fs.DirEntry, e error) error {
-		if e != nil {
-			logger.Println(color.RedString("Walk Error:"), path, e.Error())
-			if config.LogToFile {
-				fileLogger.Println("Walk Error:", path, e.Error())
-			}
-			return e
-		}
-		if !d.IsDir() {
-			if ext := strings.ToLower(filepath.Ext(d.Name()))[1:]; config.isAccept(ext) {
-				newPath := filepath.Join(config.OutputPath, filepath.Base(path))
-				newPath = strings.TrimSuffix(newPath, filepath.Ext(newPath)) + OutputFormat
-				if err := os.MkdirAll(filepath.Dir(newPath), 0755); err != nil {
-					logger.Println(color.RedString("Create New Path Failed"))
-					if config.LogToFile {
-						fileLogger.Println("Create New Path Failed")
-					}
-					return err
-				}
-				taskList = append(taskList, Task{Input: path, Output: newPath})
-			}
-		}
-		return nil
-	})
-	if err != nil {
-		panic(err.Error())
-	}
-	total = len(taskList)
-}
-
-func doTask(t *Task) error {
-	file, err := os.Open(t.Input)
-	if err != nil {
-		return err
-	}
-
-	filename, err := common.Touch(t.Output, dirMutex, MaxRenameRetry)
-	if err != nil {
-		return err
-	}
-	t.Output = filename
-
-	img, _, err := image.Decode(file)
-	if err != nil {
-		return err
-	}
-
-	buf := new(bytes.Buffer)
-	err = jpeg.Encode(buf, img, config.jpegQuality)
-	if err != nil {
-		return err
-	}
-	t.Data = buf.Bytes()
-	return nil
-}
-
-// compress job, multiple goroutine
-func compress() {
-	defer wg.Done()
-	// get job from channel,
-	// channel inCh will be closed by sender
-	for t := range inCh {
-		// check if success
-		if err := doTask(&t); err != nil {
-			// if failed, push to fail channel (multi-sender)
-			t.Data = []byte(err.Error())
-			failCh <- t
-			continue
-		}
-		outCh <- t
-	}
-}
-
-func writeToFiles() {
-	defer wg.Done()
-	count := 0
-	for t := range outCh {
-		err := os.WriteFile(t.Output, t.Data, 0644)
-		if err != nil {
-			t.Data = []byte(err.Error())
-			failCh <- t
-			continue
-		}
-		count++
-		logger.Println(color.GreenString(fmt.Sprintf("(%d/%d)", count, total)),
-			t.Input, color.GreenString("->"), t.Output)
-		if config.LogToFile {
-			fileLogger.Println(fmt.Sprintf("(%d/%d)", count, total),
-				t.Input, "->", t.Output)
-		}
-	}
-}
-
-// transfer
-// when process finished, failCh will be closed
-func transferFailList() {
-	defer wg.Done()
-	for t := range failCh {
-		failList = append(failList, t)
-	}
-}
-
-// transfer
-// close the channel cuz this is the only sender
-func transferTaskList() {
-	defer close(inCh)
-	for t := range taskList {
-		inCh <- taskList[t]
-	}
 }
 
 func process() {
@@ -229,7 +107,7 @@ func process() {
 	}
 
 	if config.LogToFile {
-		fileLogger = common.GetFileLogger(id)
+		fileLogger = platform.GetFileLogger(id)
 		fileLogger.Println("Input Path:", config.InputPath)
 		fileLogger.Println("Output Path:", config.OutputPath)
 		fileLogger.Println("Thread Count:", strconv.Itoa(config.ThreadCount))
@@ -311,7 +189,7 @@ func main() {
 
 func usage() {
 	_, _ = fmt.Fprintf(os.Stderr,
-		`Version: 2.3
+		`Version: 2.4
 Usage: compressor [-h] [Options]
 
 Options:
