@@ -6,6 +6,7 @@ import (
 	"compressor/common"
 	"flag"
 	"fmt"
+	"github.com/fatih/color"
 	"image"
 	"image/jpeg"
 	_ "image/png"
@@ -91,7 +92,7 @@ func travel() {
 	// find all images
 	err := filepath.WalkDir(config.InputPath, func(path string, d fs.DirEntry, e error) error {
 		if e != nil {
-			logger.Println(common.Red("Walk Error:"), path, e.Error())
+			logger.Println(color.RedString("Walk Error:"), path, e.Error())
 			if config.LogToFile {
 				fileLogger.Println("Walk Error:", path, e.Error())
 			}
@@ -102,7 +103,7 @@ func travel() {
 				newPath := filepath.Join(config.OutputPath, filepath.Base(path))
 				newPath = strings.TrimSuffix(newPath, filepath.Ext(newPath)) + OutputFormat
 				if err := os.MkdirAll(filepath.Dir(newPath), 0755); err != nil {
-					logger.Println(common.Red("Create New Path Failed"))
+					logger.Println(color.RedString("Create New Path Failed"))
 					if config.LogToFile {
 						fileLogger.Println("Create New Path Failed")
 					}
@@ -173,8 +174,8 @@ func writeToFiles() {
 			continue
 		}
 		count++
-		logger.Println(common.Green(fmt.Sprintf("(%d/%d)", count, total)),
-			t.Input, common.Green("->"), t.Output)
+		logger.Println(color.GreenString(fmt.Sprintf("(%d/%d)", count, total)),
+			t.Input, color.GreenString("->"), t.Output)
 		if config.LogToFile {
 			fileLogger.Println(fmt.Sprintf("(%d/%d)", count, total),
 				t.Input, "->", t.Output)
@@ -202,26 +203,26 @@ func transferTaskList() {
 
 func process() {
 	// confirm tasks
-	logger.Println(common.Green("Input Path:"), config.InputPath)
-	logger.Println(common.Green("Output Path:"), config.OutputPath)
-	logger.Println(common.Green("Thread Count:"), strconv.Itoa(config.ThreadCount))
-	logger.Println(common.Green("Accept Format:"), strings.Join(config.InputFormat, ", "))
-	logger.Println(common.Green("JPEG Quality:"), strconv.Itoa(config.Quality))
+	logger.Println(color.GreenString("Input Path:"), config.InputPath)
+	logger.Println(color.GreenString("Output Path:"), config.OutputPath)
+	logger.Println(color.GreenString("Thread Count:"), strconv.Itoa(config.ThreadCount))
+	logger.Println(color.GreenString("Accept Format:"), strings.Join(config.InputFormat, ", "))
+	logger.Println(color.GreenString("JPEG Quality:"), strconv.Itoa(config.Quality))
 	if config.LogToFile {
-		logger.Println(common.Green("Log:"), id+".log")
+		logger.Println(color.GreenString("Log:"), id+".log")
 	} else {
-		logger.Println(common.Green("Log:"), "stdout")
+		logger.Println(color.GreenString("Log:"), "stdout")
 	}
-	logger.Println(common.Yellow("Continue? (Y/n)"))
+	logger.Println(color.YellowString("Continue? (Y/n)"))
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		input := strings.ToLower(scanner.Text())
 		if input == "n" {
-			logger.Println(common.Red("Abort!"))
+			logger.Println(color.RedString("Abort!"))
 			os.Exit(1)
 		} else if input != "" && input != "y" {
-			logger.Println(common.Yellow("Continue? (Y/n)"))
+			logger.Println(color.YellowString("Continue? (Y/n)"))
 		} else {
 			break
 		}
@@ -239,12 +240,12 @@ func process() {
 
 	// travel filepath
 	travel()
-	logger.Println(common.Green("Found:"), strconv.Itoa(len(taskList)))
+	logger.Println(color.GreenString("Found:"), strconv.Itoa(len(taskList)))
 	if config.LogToFile {
 		fileLogger.Println("Found:", strconv.Itoa(len(taskList)))
 	}
 
-	logger.Println(common.Blue("========= Pending ========="))
+	logger.Println(color.BlueString("========= Pending ========="))
 	if config.LogToFile {
 		fileLogger.Println("========= Pending =========")
 	}
@@ -277,7 +278,7 @@ func process() {
 	close(failCh)
 	wg.Wait()
 
-	logger.Println(common.Blue("=========  Done!  ========="))
+	logger.Println(color.BlueString("=========  Done!  ========="))
 	if config.LogToFile {
 		fileLogger.Println("=========  Done!  =========")
 	}
@@ -286,18 +287,18 @@ func process() {
 func summary() {
 	var failCount = len(failList)
 	if failCount > 0 {
-		logger.Println(common.Yellow("Oops! Some of them are failed..."))
+		logger.Println(color.YellowString("Oops! Some of them are failed..."))
 		if config.LogToFile {
 			fileLogger.Println("Oops! Some of them are failed...")
 		}
 		for _, n := range failList {
-			logger.Println(common.Red("Failed:"), n.Input, "-", string(n.Data))
+			logger.Println(color.RedString("Failed:"), n.Input, "-", string(n.Data))
 			if config.LogToFile {
 				fileLogger.Println("Failed:", n.Input, "-", string(n.Data))
 			}
 		}
 	}
-	logger.Println(common.Green("Total:"), total, "-", common.Red("Failed:"), failCount)
+	logger.Println(color.GreenString("Total:"), total, "-", color.RedString("Failed:"), failCount)
 	if config.LogToFile {
 		fileLogger.Println("Total:", total, "-", "Failed:", failCount)
 	}
