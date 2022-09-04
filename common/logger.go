@@ -1,6 +1,7 @@
 package common
 
 import (
+	"github.com/fatih/color"
 	"log"
 	"os"
 )
@@ -15,5 +16,5 @@ func GetFileLogger(id string) *log.Logger {
 }
 
 func GetLogger() *log.Logger {
-	return log.New(os.Stdout, "", log.LstdFlags)
+	return log.New(color.Output, "", log.LstdFlags)
 }
