@@ -190,7 +190,7 @@ func main() {
 
 func usage() {
 	_, _ = fmt.Fprintf(os.Stderr,
-		`Version: 2.5
+		`Version: 2.6
 Usage: compressor [-h] [Options]
 
 Options:

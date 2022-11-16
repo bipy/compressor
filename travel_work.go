@@ -21,7 +21,7 @@ func travel() {
 		}
 		if !d.IsDir() {
 			if ext := strings.ToLower(filepath.Ext(d.Name()))[1:]; config.IsAccept(ext) {
-				newPath := filepath.Join(config.OutputPath, filepath.Base(path))
+				newPath := filepath.Join(config.OutputPath, strings.TrimPrefix(path, config.InputPath))
 				newPath = strings.TrimSuffix(newPath, filepath.Ext(newPath)) + platform.OutputFormat
 				if err := os.MkdirAll(filepath.Dir(newPath), 0755); err != nil {
 					logger.Println(color.RedString("Create New Path Failed"))
