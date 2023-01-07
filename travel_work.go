@@ -10,6 +10,15 @@ import (
 )
 
 func travel() {
+	if config.SingleFileMode {
+		taskList = append(taskList, Task{
+			Input:  config.InputPath,
+			Output: strings.TrimSuffix(config.InputPath, filepath.Ext(config.InputPath)) + platform.OutputFormat,
+		})
+		total = 1
+		return
+	}
+
 	// find all images
 	err := filepath.WalkDir(config.InputPath, func(path string, d fs.DirEntry, e error) error {
 		if e != nil {

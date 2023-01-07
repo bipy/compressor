@@ -14,15 +14,16 @@ const (
 )
 
 type Config struct {
-	Id          string            `json:"-"` // use unix timestamp as id
-	ThreadCount int               `json:"thread_count"`
-	InputFormat []string          `json:"input_format"`
-	InputPath   string            `json:"input_path"`
-	OutputPath  string            `json:"output_path"`
-	Quality     int               `json:"quality"`
-	LogToFile   bool              `json:"log_to_file"`
-	JpegQuality *jpeg.Options     // jpeg quality
-	IsAccept    func(string) bool // input file format
+	Id             string            `json:"-"` // use unix timestamp as id
+	ThreadCount    int               `json:"thread_count"`
+	InputFormat    []string          `json:"input_format"`
+	InputPath      string            `json:"input_path"`
+	OutputPath     string            `json:"output_path"`
+	Quality        int               `json:"quality"`
+	LogToFile      bool              `json:"log_to_file"`
+	JpegQuality    *jpeg.Options     // jpeg quality
+	IsAccept       func(string) bool // input file format
+	SingleFileMode bool              // single file mode
 }
 
 func LoadConfig(configPath string) *Config {
@@ -60,6 +61,7 @@ func ParseConfig(config *Config) {
 		// dir mode
 		// input: dir
 		// output: dir_id / out
+		config.SingleFileMode = false
 		if config.OutputPath != "" {
 			if config.InputPath == config.OutputPath {
 				panic("Output Path Cannot Be Same As Input Path")
@@ -72,6 +74,7 @@ func ParseConfig(config *Config) {
 		// single file mode
 		// input: file
 		// output: same dir / out
+		config.SingleFileMode = true
 		if config.OutputPath != "" {
 			config.OutputPath = filepath.Clean(config.OutputPath)
 		} else {

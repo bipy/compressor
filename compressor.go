@@ -35,7 +35,6 @@ var (
 	inCh     chan Task       // in-task channel
 	outCh    chan Task       // out-task channel
 	failCh   chan Task       // fail channel
-
 )
 
 func init() {
@@ -190,7 +189,7 @@ func main() {
 
 func usage() {
 	_, _ = fmt.Fprintf(os.Stderr,
-		`Version: 2.6
+		`Version: 2.7
 Usage: compressor [-h] [Options]
 
 Options:
