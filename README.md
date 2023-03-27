@@ -27,8 +27,6 @@ Compressor can properly handle the task of compressing a large number of picture
 
 Output quality **90%**
 
-Will **not** resize the image
-
 Automatically generate ID to distinguish
 
 The automatic output path is the `INPUT_ID` folder under the parent directory of the input folder
@@ -61,26 +59,30 @@ compressor -h
 ## Full Usage
 
 ```
-Version: 2.3
+Version: 2.8
 Usage: compressor [-h] [Options]
 
 Options:
   -h
-    	show this help
+        show this help
   -c string
-    	Configuration Filepath
+        Configuration Filepath
   -f string
-    	Input Format (default "jpg jpeg png")
+        Input Format (default "jpg jpeg png")
+  -height int
+        Max Image Height (default 9223372036854775807)
   -i string
-    	Input Path
+        Input Path
   -j int
-    	Thread Count (default 4)
+        Thread Count (default 4)
   -log
-    	Save Log as File
+        Save Log as File
   -o string
-    	Output Path
+        Output Path
   -q int
-    	JPEG Quality (default 90)
+        JPEG Quality (default 90)
+  -width int
+        Max Image Width (default 9223372036854775807)
 ```
 
 
@@ -99,5 +101,6 @@ Modify the file `config.json` directly
 | output_path  |           D:\\out\\           | Output path,  create a new folder under the parent directory of the input folder if not specified |
 |   quality    |             1～100             |                        Determines the jpeg encoding quality. Default is 90                        |
 | log_to_file  |             bool              |                                         save log to file                                          |
-
+|  max_width   |              int              |                                         image width limit                                         |
+|  max_height  |              int              |                                        image height limit                                         |
 

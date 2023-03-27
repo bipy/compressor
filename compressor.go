@@ -6,7 +6,9 @@ import (
 	"flag"
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/samber/lo"
 	"log"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -29,12 +31,13 @@ var (
 
 // runtime variable
 var (
-	total    int             // the number of images
-	wg       *sync.WaitGroup // thread limit
-	taskList []Task          // task slice
-	inCh     chan Task       // in-task channel
-	outCh    chan Task       // out-task channel
-	failCh   chan Task       // fail channel
+	total      int             // the number of images
+	wg         *sync.WaitGroup // thread limit
+	taskList   []Task          // task slice
+	inCh       chan Task       // in-task channel
+	outCh      chan Task       // out-task channel
+	failCh     chan Task       // fail channel
+	touchMutex *sync.Mutex
 )
 
 func init() {
@@ -45,6 +48,8 @@ func init() {
 	inputPathPtr := flag.String("i", "", "Input Path")
 	outputPathPtr := flag.String("o", "", "Output Path")
 	qualityPtr := flag.Int("q", 90, "JPEG Quality")
+	maxWidthPtr := flag.Int("width", math.MaxInt, "Max Image Width")
+	maxHeightPtr := flag.Int("height", math.MaxInt, "Max Image Height")
 	inputFormatPtr := flag.String("f", "jpg jpeg png", "Input Format")
 	logToFilePtr := flag.Bool("log", false, "Save Log as File")
 	flag.Parse()
@@ -59,6 +64,8 @@ func init() {
 			InputPath:   *inputPathPtr,
 			OutputPath:  *outputPathPtr,
 			Quality:     *qualityPtr,
+			MaxWidth:    *maxWidthPtr,
+			MaxHeight:   *maxHeightPtr,
 			LogToFile:   *logToFilePtr,
 		}
 	}
@@ -77,6 +84,7 @@ func init() {
 	inCh = make(chan Task, config.ThreadCount<<1)
 	outCh = make(chan Task, config.ThreadCount<<1)
 	failCh = make(chan Task, 1)
+	touchMutex = &sync.Mutex{}
 }
 
 func process() {
@@ -86,13 +94,14 @@ func process() {
 	logger.Println(color.GreenString("Thread Count:"), strconv.Itoa(config.ThreadCount))
 	logger.Println(color.GreenString("Accept Format:"), strings.Join(config.InputFormat, ", "))
 	logger.Println(color.GreenString("JPEG Quality:"), strconv.Itoa(config.Quality))
-	if config.LogToFile {
-		logger.Println(color.GreenString("Log:"), config.Id+".log")
-	} else {
-		logger.Println(color.GreenString("Log:"), "stdout")
-	}
-	logger.Println(color.YellowString("Continue? (Y/n)"))
+	logger.Println(color.GreenString("Max Image Width:"),
+		lo.Ternary(config.MaxWidth == math.MaxInt, "Unlimited", strconv.Itoa(config.MaxWidth)))
+	logger.Println(color.GreenString("Max Image Height:"),
+		lo.Ternary(config.MaxHeight == math.MaxInt, "Unlimited", strconv.Itoa(config.MaxHeight)))
+	logger.Println(color.GreenString("Log:"),
+		lo.Ternary(config.LogToFile, config.Id+".log", "stdout"))
 
+	logger.Println(color.YellowString("Continue? (Y/n)"))
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		input := strings.ToLower(scanner.Text())
@@ -113,6 +122,10 @@ func process() {
 		fileLogger.Println("Thread Count:", strconv.Itoa(config.ThreadCount))
 		fileLogger.Println("Accept Format:", strings.Join(config.InputFormat, ", "))
 		fileLogger.Println("JPEG Quality:", strconv.Itoa(config.Quality))
+		fileLogger.Println("Max Image Width:",
+			lo.Ternary(config.MaxWidth == math.MaxInt, "Unlimited", strconv.Itoa(config.MaxWidth)))
+		fileLogger.Println("Max Image Height:",
+			lo.Ternary(config.MaxHeight == math.MaxInt, "Unlimited", strconv.Itoa(config.MaxHeight)))
 		fileLogger.Println("Log:", config.Id+".log")
 	}
 
@@ -189,7 +202,7 @@ func main() {
 
 func usage() {
 	_, _ = fmt.Fprintf(os.Stderr,
-		`Version: 2.7
+		`Version: 2.8
 Usage: compressor [-h] [Options]
 
 Options:

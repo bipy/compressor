@@ -8,5 +8,7 @@
   "input_path": "D:\\Pictures",
   "output_path": "",
   "quality": 90,
-  "log_to_file": true
+  "log_to_file": true,
+  "max_width": 1000,
+  "max_height": 1200
 }

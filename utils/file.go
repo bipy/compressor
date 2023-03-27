@@ -6,10 +6,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 // Touch crate & rename file
-func Touch(filename string) (name string, err error) {
+func Touch(filename string, mutex *sync.Mutex) (name string, err error) {
+	mutex.Lock()
+	defer mutex.Unlock()
 	ext := filepath.Ext(filename)
 	baseName := strings.TrimSuffix(filename, ext)
 	for i := 1; i < 128; i++ {

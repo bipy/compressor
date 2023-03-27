@@ -25,8 +25,6 @@ compressor 可以妥善处理好**将大批量图片压缩成为JPG格式**的�
 
 输出质量 **90%**
 
-**不修改**图片大小
-
 自动生成 ID 以区分
 
 自动输出路径为父级目录下的 `INPUT_ID` 文件夹
@@ -59,26 +57,30 @@ compressor -h
 ## 完整用法
 
 ```
-Version: 2.3
+Version: 2.8
 Usage: compressor [-h] [Options]
 
 Options:
   -h
-    	show this help
+        show this help
   -c string
-    	Configuration Filepath
+        Configuration Filepath
   -f string
-    	Input Format (default "jpg jpeg png")
+        Input Format (default "jpg jpeg png")
+  -height int
+        Max Image Height (default 9223372036854775807)
   -i string
-    	Input Path
+        Input Path
   -j int
-    	Thread Count (default 4)
+        Thread Count (default 4)
   -log
-    	Save Log as File
+        Save Log as File
   -o string
-    	Output Path
+        Output Path
   -q int
-    	JPEG Quality (default 90)
+        JPEG Quality (default 90)
+  -width int
+        Max Image Width (default 9223372036854775807)
 ```
 
 ## 修改参数
@@ -95,3 +97,5 @@ Options:
 | output_path  |      D:\\out\\       | 输出路径，若不指定，则默认在输入路径父文件夹下新建文件夹 |
 |   quality    |        1～100         |         输出图片质量，推荐 90         |
 | log_to_file  |         bool         |           保存日志到文件            |
+|  max_width   |         int          |            最大图片宽度            |
+|  max_height  |         int          |            最大图片高度            |

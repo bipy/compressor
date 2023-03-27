@@ -2,7 +2,7 @@ package platform
 
 import (
 	"encoding/json"
-	"image/jpeg"
+	"math"
 	"os"
 	"path/filepath"
 )
@@ -14,16 +14,16 @@ const (
 )
 
 type Config struct {
-	Id             string            `json:"-"` // use unix timestamp as id
-	ThreadCount    int               `json:"thread_count"`
-	InputFormat    []string          `json:"input_format"`
-	InputPath      string            `json:"input_path"`
-	OutputPath     string            `json:"output_path"`
-	Quality        int               `json:"quality"`
-	LogToFile      bool              `json:"log_to_file"`
-	JpegQuality    *jpeg.Options     // jpeg quality
-	IsAccept       func(string) bool // input file format
-	SingleFileMode bool              // single file mode
+	Id             string   `json:"-"` // use unix timestamp as id
+	ThreadCount    int      `json:"thread_count"`
+	InputFormat    []string `json:"input_format"`
+	InputPath      string   `json:"input_path"`
+	OutputPath     string   `json:"output_path"`
+	Quality        int      `json:"quality"`
+	LogToFile      bool     `json:"log_to_file"`
+	MaxWidth       int      `json:"max_width"`
+	MaxHeight      int      `json:"max_height"`
+	SingleFileMode bool     // single file mode
 }
 
 func LoadConfig(configPath string) *Config {
@@ -49,7 +49,13 @@ func ParseConfig(config *Config) {
 		panic("Quality Value Should Between 1 and 100")
 	}
 
-	config.JpegQuality = &jpeg.Options{Quality: config.Quality}
+	// check shape limit
+	if config.MaxWidth == 0 {
+		config.MaxWidth = math.MaxInt
+	}
+	if config.MaxHeight == 0 {
+		config.MaxHeight = math.MaxInt
+	}
 
 	// check input path & output path
 	config.InputPath = filepath.Clean(config.InputPath)
@@ -80,15 +86,5 @@ func ParseConfig(config *Config) {
 		} else {
 			config.OutputPath = filepath.Dir(config.InputPath)
 		}
-	}
-
-	// initialize accept input format
-	config.IsAccept = func(s string) (ok bool) {
-		for _, v := range config.InputFormat {
-			if s == v {
-				return true
-			}
-		}
-		return false
 	}
 }

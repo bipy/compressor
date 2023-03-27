@@ -3,6 +3,7 @@ package main
 import (
 	"compressor/platform"
 	"github.com/fatih/color"
+	"github.com/samber/lo"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -29,7 +30,7 @@ func travel() {
 			return e
 		}
 		if !d.IsDir() {
-			if ext := strings.ToLower(filepath.Ext(d.Name()))[1:]; config.IsAccept(ext) {
+			if ext := strings.ToLower(filepath.Ext(d.Name()))[1:]; lo.Contains(config.InputFormat, ext) {
 				newPath := filepath.Join(config.OutputPath, strings.TrimPrefix(path, config.InputPath))
 				newPath = strings.TrimSuffix(newPath, filepath.Ext(newPath)) + platform.OutputFormat
 				if err := os.MkdirAll(filepath.Dir(newPath), 0755); err != nil {
