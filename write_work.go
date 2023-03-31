@@ -12,7 +12,7 @@ func writeToFiles() {
 	for t := range outCh {
 		err := os.WriteFile(t.Output, t.Data, 0644)
 		if err != nil {
-			t.Data = []byte(err.Error())
+			t.Err = &err
 			failCh <- t
 			continue
 		}

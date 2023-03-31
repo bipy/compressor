@@ -58,7 +58,7 @@ func compress() {
 		// check if success
 		if err := doTask(&t); err != nil {
 			// if failed, push to fail channel (multi-sender)
-			t.Data = []byte(err.Error())
+			t.Err = &err
 			failCh <- t
 			continue
 		}

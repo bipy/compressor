@@ -20,6 +20,7 @@ type Task struct {
 	Input  string
 	Output string
 	Data   []byte
+	Err    *error
 }
 
 var (
@@ -183,9 +184,9 @@ func summary() {
 			fileLogger.Println("Oops! Some of them are failed...")
 		}
 		for _, n := range failList {
-			logger.Println(color.RedString("Failed:"), n.Input, "-", string(n.Data))
+			logger.Println(color.RedString("Failed:"), n.Input, "-", (*n.Err).Error())
 			if config.LogToFile {
-				fileLogger.Println("Failed:", n.Input, "-", string(n.Data))
+				fileLogger.Println("Failed:", n.Input, "-", (*n.Err).Error())
 			}
 		}
 	}
