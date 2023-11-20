@@ -5,6 +5,7 @@ import (
 	"compressor/loader"
 	"compressor/utils"
 	"github.com/charmbracelet/log"
+	"github.com/samber/lo"
 	"os"
 	"strings"
 	"sync"
@@ -15,11 +16,15 @@ func Run(cfg *loader.Config) {
 	compressHandler := handler.GetCompressHandler(cfg.OutputType)
 
 	fileHandler := handler.FileHandler{
-		Mu:                  &sync.Mutex{},
-		BasePath:            cfg.InputPath,
-		OutputPath:          cfg.OutputPath,
-		AcceptedInputFormat: strings.Split(cfg.AcceptedInputFormat, " "),
-		OutputFormat:        cfg.OutputType,
+		Mu:         &sync.Mutex{},
+		BasePath:   cfg.InputPath,
+		OutputPath: cfg.OutputPath,
+		AcceptedInputFormat: lo.Map[string, string](
+			strings.Split(cfg.AcceptedInputFormat, " "),
+			func(item string, _ int) string {
+				return "." + item
+			}),
+		OutputFormat: "." + cfg.OutputType,
 	}
 
 	fileList, dstList := fileHandler.Travel(cfg.SingleFileMode)

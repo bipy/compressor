@@ -34,7 +34,7 @@ func (h *FileHandler) Travel(singleFile bool) (fileList []string, dstList []stri
 			return e
 		}
 		if !d.IsDir() {
-			if ext := strings.ToLower(filepath.Ext(d.Name()))[1:]; lo.Contains(h.AcceptedInputFormat, ext) {
+			if ext := strings.ToLower(filepath.Ext(d.Name())); lo.Contains(h.AcceptedInputFormat, ext) {
 				fileList = append(fileList, path)
 			}
 		}

@@ -37,7 +37,12 @@ func (cfg *Config) Check() bool {
 	}
 
 	// check input path & output path
-	cfg.InputPath = filepath.Clean(cfg.InputPath)
+	var err error
+	cfg.InputPath, err = filepath.Abs(cfg.InputPath)
+	if err != nil {
+		log.Errorf("[Config] get abs path failed. err=%v", err)
+		return false
+	}
 	info, err := os.Stat(cfg.InputPath)
 	if err != nil {
 		log.Errorf("[Config] input path is invalid. err=%v", err)
@@ -69,6 +74,6 @@ func (cfg *Config) Check() bool {
 		}
 	}
 
-	log.Debugf("[Config] check pass. cfg=%v", cfg)
+	log.Debugf("[Config] check pass. cfg=%+v", cfg)
 	return true
 }
