@@ -37,6 +37,9 @@ compressor -i ~/Pictures -j 16 -q 80
 # 单文件模式
 compressor -i ~/Pictures/test.png
 
+# 使用 Webp
+compressor -i ~/Pictures/test.png -t webp -q 75
+
 # 完整用法
 compressor -h
 ```

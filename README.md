@@ -37,6 +37,9 @@ compressor -i ~/Pictures -j 16 -q 80
 # Single File Mode
 compressor -i ~/Pictures/test.png
 
+# Use Webp
+compressor -i ~/Pictures/test.png -t webp -q 75
+
 # Help
 compressor -h
 ```
