@@ -1,6 +1,6 @@
 package constant
 
-const Version = "3.0"
+const Version = "3.1"
 
 const FormattedHelpMessage = `Version: %s
 Usage: compressor [-h] [Options]

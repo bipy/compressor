@@ -70,7 +70,6 @@ compressor -h
 ## 完整用法
 
 ```
-Version: 3.0
 Usage: compressor [-h] [Options]
 
 Options:
@@ -89,7 +88,7 @@ Options:
   -q int
         output quality: 0-100 (default 90)
   -t string
-        output type: jpg/jpeg/png (default "jpg")
+        output type: jpg/jpeg/png/webp (default "jpg")
   -width int
         max image width (default 9223372036854775807)
 ```

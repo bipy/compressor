@@ -21,7 +21,7 @@ func Execute() {
 	flag.IntVar(&cfg.ThreadCount, "j", 8, "thread count")
 	flag.StringVar(&cfg.InputPath, "i", "", "input path")
 	flag.StringVar(&cfg.OutputPath, "o", "", "output path")
-	flag.StringVar(&cfg.OutputType, "t", "jpg", "output type: jpg/jpeg/png")
+	flag.StringVar(&cfg.OutputType, "t", "jpg", "output type: jpg/jpeg/png/webp")
 
 	flag.IntVar(&cfg.Quality, "q", 90, "output quality: 0-100")
 	flag.IntVar(&cfg.MaxWidth, "width", math.MaxInt, "max image width")
