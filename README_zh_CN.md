@@ -1,101 +1,92 @@
-# compressor - 多线程图片批量压缩工具
+[English](README.md) | 简体中文
 
-**jpeg** 可以实现对图片进行高质量的压缩，可以在不显著影响图像质量的情况下大幅减少图片体积
+# compressor - ⚡️高性能并行图片压缩工具
 
-但在大量处理图片的情形下需要完成并行与自动化处理等功能，因此选择了 Go 构建了具备高性能的图片批量处理工具
+> RAW 图片往往具有非常大的文件体积，在归纳整理存储上占据了太多的空间
+>
+> 图片压缩可以在不显著影响图像质量的情况下大幅减少图片体积
 
-compressor 可以妥善处理好**将大批量图片压缩成为JPG格式**的任务
+`compressor` 实现了对超大量图片并行压缩的功能，可充分利用硬件性能，节省大量时间
 
 ![](https://goreportcard.com/badge/github.com/bipy/compressor)
 
 # 功能
 
-- 使用协程并行压缩，可自定义线程数
+- CLI
+- 高性能并行压缩，可自定义并行数量
 - 递归访问输入文件夹下所有图片
 - 可以指定输出文件路径，也可以在图片父目录下自动生成
-- 支持调整输出图片质量，输出格式固定为`.jpg`
-- 完整日志保存
+- 遇到重复文件名时自动重命名
+- 支持调整输出图片质量
+- 支持调整输入格式
+- 支持调整输出格式
+- 完整日志
 - 输出统计
 - 异常处理
 - 跨平台支持
 
 # 使用方法
 
-**默认**将图片压缩为 `jpg` 格式
-
-输出质量 **90%**
-
-自动生成 ID 以区分
-
-自动输出路径为父级目录下的 `INPUT_ID` 文件夹
-
-保留所有图片的相对路径
-
-**eg**: 若配置输入文件夹为`D:\\Pictures`
-
-```
-D:\\Pictures\\myimg\\test.png -> D:\\Pictures_231453823\\myimg\\test.jpg
-D:\\Pictures\\mypic\\hahaha.png -> D:\\Pictures_231453823\\mypic\\hahaha.jpg
-```
-
 ## 启动
 
-下载对应 Release 并配置
-
 ```bash
-# 指定配置文件
-compressor -c config.json
-
 # CLI 模式
-# 8 线程; 质量 80; 输入路径 ~/Pictures
-compressor -i ~/Pictures -j 8 -q 80
+# 16 线程; 质量 80; 输入路径 ~/Pictures
+compressor -i ~/Pictures -j 16 -q 80
+
+# 单文件模式
+compressor -i ~/Pictures/test.png
 
 # 完整用法
 compressor -h
 ```
 
+## 示例
+
+**若配置输入文件夹为`~/Pictures/my-photos`，程序自动生成ID `1700457797`，自动创建输出路径**
+
+```
+~/Pictures/my-photos -> ~/Pictures/my-photos-1700457797
+~/Pictures/my-photos/part1 -> ~/Pictures/my-photos-1700457797/part1
+```
+
+**递归处理所有文件**
+
+```
+~/Pictures/my-photos/part1/test.png -> ~/Pictures/my-photos-1700457797/part1/test.jpg
+~/Pictures/my-photos/haha.png -> ~/Pictures/my-photos-1700457797/haha.jpg
+```
+
+**自动重命名**
+
+```
+~/Pictures/my-photos/haha.jpg -> ~/Pictures/my-photos-1700457797/haha-1.jpg
+~/Pictures/my-photos/haha.jpeg -> ~/Pictures/my-photos-1700457797/haha-2.jpg
+```
+
 ## 完整用法
 
 ```
-Version: 2.8
+Version: 3.0
 Usage: compressor [-h] [Options]
 
 Options:
   -h
         show this help
-  -c string
-        Configuration Filepath
-  -f string
-        Input Format (default "jpg jpeg png")
+  -accept string
+        accepted input format (default "jpg jpeg png")
   -height int
-        Max Image Height (default 9223372036854775807)
+        max image height (default 9223372036854775807)
   -i string
-        Input Path
+        input path
   -j int
-        Thread Count (default 4)
-  -log
-        Save Log as File
+        thread count (default 8)
   -o string
-        Output Path
+        output path
   -q int
-        JPEG Quality (default 90)
+        output quality: 0-100 (default 90)
+  -t string
+        output type: jpg/jpeg/png (default "jpg")
   -width int
-        Max Image Width (default 9223372036854775807)
+        max image width (default 9223372036854775807)
 ```
-
-## 修改参数
-
-直接修改 `config.json` 文件
-
-# 配置文件说明
-
-|      名称      |         可选值          |              说明              |
-|:------------:|:--------------------:|:----------------------------:|
-| thread_count |     小于CPU核心数的两倍      |             线程数              |
-| input_format | "png", "jpg", "jpeg" |       输入图片格式（其他格式将被忽略）       |
-|  input_path  |       D:\\in\\       |   输入路径，必须是文件夹（将递归处理所有子文件夹）   |
-| output_path  |      D:\\out\\       | 输出路径，若不指定，则默认在输入路径父文件夹下新建文件夹 |
-|   quality    |        1～100         |         输出图片质量，推荐 90         |
-| log_to_file  |         bool         |           保存日志到文件            |
-|  max_width   |         int          |            最大图片宽度            |
-|  max_height  |         int          |            最大图片高度            |

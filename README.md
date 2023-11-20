@@ -1,106 +1,92 @@
 English | [简体中文](README_zh_CN.md)
 
-# Multi-thread Image Batch Compression Tool
+# compressor - ⚡️High-performance parallel image compression tool
 
-**jpeg** can achieve high-quality image compression, which can greatly reduce the file size without significantly affecting the image quality.
+> RAW images often have very large file sizes, taking up too much space in storage and organization.
+>
+> Image compression can significantly reduce image size without noticeably affecting image quality.
 
-However, in the case of processing a large number of pictures, it is necessary to complete the functions of parallel and automatic processing, so Go is selected to build a high-performance image batch processing tool.
-
-Compressor can properly handle the task of compressing a large number of pictures into JPG format.
+`compressor` implements the function of parallel compression for a large number of images, fully utilizing hardware performance and saving a lot of time.
 
 ![](https://goreportcard.com/badge/github.com/bipy/compressor)
 
 # Features
 
-- Compress in parallel using goroutines, with a customizable number of threads
-- Recursive access to all images under the input folder
-- Output file paths can be specified, or generated automatically in the parent directory of the input folder
-- The output image quality can be adjusted, the output format is fixed to `.jpg`.
-- Full log
+- CLI
+- High-performance parallel compression, with customizable parallel quantity
+- Recursively accesses all images in the input folder
+- Can specify output file path, or automatically generate in the parent directory of the image
+- Automatically renames when encountering duplicate file names
+- Supports adjusting output image quality
+- Supports adjusting input format
+- Supports adjusting output format
+- Full logs
 - Output statistics
 - Exception handling
 - Cross-platform support
 
 # Usage
 
-**Default** compress the picture into `jpg` format
-
-Output quality **90%**
-
-Automatically generate ID to distinguish
-
-The automatic output path is the `INPUT_ID` folder under the parent directory of the input folder
-
-Keep the relative paths of all images
-
-**eg**: If the input folder is `D:\\Pictures`
-
-```
-D:\\Pictures\\myimg\\test.png -> D:\\Pictures_231453823\\myimg\\test.jpg
-D:\\Pictures\\mypic\\hahaha.png -> D:\\Pictures_231453823\\mypic\\hahaha.jpg
-```
-
 ## Run
 
-Download the release and configure
-
 ```bash
-# Specify configuration
-compressor -c config.json
-
 # CLI Mode
-# 8 threads; quality 80; input path ~/Pictures
-compressor -i ~/Pictures -j 8 -q 80
+# 16 Threads; Quality 80; Input Path ~/Pictures
+compressor -i ~/Pictures -j 16 -q 80
 
-# full usage
+# Single File Mode
+compressor -i ~/Pictures/test.png
+
+# Help
 compressor -h
+```
+
+## Example
+
+**If the input folder is set to `~/Pictures/my-photos`, the program automatically generates the ID `1700457797`, and automatically creates the output path**
+
+```
+~/Pictures/my-photos -> ~/Pictures/my-photos-1700457797
+~/Pictures/my-photos/part1 -> ~/Pictures/my-photos-1700457797/part1
+```
+
+**Recursively process all files**
+
+```
+~/Pictures/my-photos/part1/test.png -> ~/Pictures/my-photos-1700457797/part1/test.jpg
+~/Pictures/my-photos/haha.png -> ~/Pictures/my-photos-1700457797/haha.jpg
+```
+
+**Automatic renaming**
+
+```
+~/Pictures/my-photos/haha.jpg -> ~/Pictures/my-photos-1700457797/haha-1.jpg
+~/Pictures/my-photos/haha.jpeg -> ~/Pictures/my-photos-1700457797/haha-2.jpg
 ```
 
 ## Full Usage
 
 ```
-Version: 2.8
+Version: 3.0
 Usage: compressor [-h] [Options]
 
 Options:
   -h
         show this help
-  -c string
-        Configuration Filepath
-  -f string
-        Input Format (default "jpg jpeg png")
+  -accept string
+        accepted input format (default "jpg jpeg png")
   -height int
-        Max Image Height (default 9223372036854775807)
+        max image height (default 9223372036854775807)
   -i string
-        Input Path
+        input path
   -j int
-        Thread Count (default 4)
-  -log
-        Save Log as File
+        thread count (default 8)
   -o string
-        Output Path
+        output path
   -q int
-        JPEG Quality (default 90)
+        output quality: 0-100 (default 90)
+  -t string
+        output type: jpg/jpeg/png (default "jpg")
   -width int
-        Max Image Width (default 9223372036854775807)
+        max image width (default 9223372036854775807)
 ```
-
-
-
-## Modify Configuration
-
-Modify the file `config.json` directly
-
-# Configuration Description
-
-|     Name     |             Value             |                                            Description                                            |
-|:------------:|:-----------------------------:|:-------------------------------------------------------------------------------------------------:|
-| thread_count | lower than the number of core |                                           Thread count                                            |
-| input_format |     "png", "jpg", "jpeg"      |                        Input image format (other formats will be ignored)                         |
-|  input_path  |           D:\\in\\            |          Input path, can be a file or a folder (will recursively process all subfolders)          |
-| output_path  |           D:\\out\\           | Output path,  create a new folder under the parent directory of the input folder if not specified |
-|   quality    |             1～100             |                        Determines the jpeg encoding quality. Default is 90                        |
-| log_to_file  |             bool              |                                         save log to file                                          |
-|  max_width   |              int              |                                         image width limit                                         |
-|  max_height  |              int              |                                        image height limit                                         |
-
