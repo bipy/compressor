@@ -23,8 +23,9 @@ type Config struct {
 
 func (cfg *Config) Check() bool {
 	// check quality
-	if cfg.Quality < constant.JPEGQualityMin || cfg.Quality > constant.JPEGQualityMax {
-		log.Errorf("[Config] quality value should between 1 and 100. quality=%d", cfg.Quality)
+	if cfg.Quality < constant.QualityMin || cfg.Quality > constant.QualityMax {
+		log.Errorf("[Config] quality value should between %d and %d. quality=%d",
+			constant.QualityMin, constant.QualityMax, cfg.Quality)
 		return false
 	}
 

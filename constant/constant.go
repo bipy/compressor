@@ -10,6 +10,7 @@ const (
 )
 
 const (
-	JPEGQualityMin = 1
-	JPEGQualityMax = 100
+	QualityMin     = 1
+	QualityMax     = 100
+	QualityDefault = 75
 )

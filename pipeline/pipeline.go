@@ -14,6 +14,7 @@ import (
 
 func Run(cfg *loader.Config) {
 	compressHandler := handler.GetCompressHandler(cfg.OutputType)
+	compressHandler.Parse(cfg)
 
 	fileHandler := handler.FileHandler{
 		Mu:         &sync.Mutex{},
