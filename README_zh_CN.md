@@ -93,10 +93,10 @@ compressor -h
 程序自动生成唯一 ID 并创建有序的输出结构：
 
 ```
-📁 ~/Pictures/my-photos          →  📁 ~/Pictures/my-photos-1700457797
-  📁 part1                        →    📁 part1
-    🖼️ test.png                   →      🖼️ test.jpg
-  🖼️ haha.png                     →    🖼️ haha.jpg
+📁 ~/Pictures/my-photos         →    📁 ~/Pictures/my-photos-1700457797
+📁 part1                        →    📁 part1
+🖼️ test.png                     →    🖼️ test.jpg
+🖼️ haha.png                     →    🖼️ haha.jpg
 ```
 
 ### 示例 2：递归处理
@@ -104,7 +104,7 @@ compressor -h
 自动处理所有子目录中的图片：
 
 ```
-📁 输入                                          📁 输出
+📁 输入                                     📁 输出
 ~/Pictures/my-photos/part1/test.png    →    ~/Pictures/my-photos-1700457797/part1/test.jpg
 ~/Pictures/my-photos/haha.png          →    ~/Pictures/my-photos-1700457797/haha.jpg
 ```
@@ -189,9 +189,9 @@ compressor -i ~/Photos/raw -o ~/Photos/compressed -j 16
 
 <div align="center">
 
-**用 ❤️ 制作，来自 Compressor 团队**
+**用 ❤️ 制作**
 
-⭐ 给我们的 GitHub 仓库点个星 — 这对我们很有激励作用！
+⭐ 给 GitHub 仓库点个星 — 这很有激励作用！
 
 [报告问题](https://github.com/bipy/compressor/issues) · [功能建议](https://github.com/bipy/compressor/issues)
 
