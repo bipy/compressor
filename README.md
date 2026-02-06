@@ -93,10 +93,10 @@ Input folder: `~/Pictures/my-photos`
 The program automatically generates a unique ID and creates an organized output structure:
 
 ```
-📁 ~/Pictures/my-photos          →  📁 ~/Pictures/my-photos-1700457797
-  📁 part1                        →    📁 part1
-    🖼️ test.png                   →      🖼️ test.jpg
-  🖼️ haha.png                     →    🖼️ haha.jpg
+📁 ~/Pictures/my-photos         →    📁 ~/Pictures/my-photos-1700457797
+📁 part1                        →    📁 part1
+🖼️ test.png                     →    🖼️ test.jpg
+🖼️ haha.png                     →    🖼️ haha.jpg
 ```
 
 ### Example 2: Recursive Processing
@@ -104,7 +104,7 @@ The program automatically generates a unique ID and creates an organized output 
 All images in subdirectories are processed automatically:
 
 ```
-📁 Input                                      📁 Output
+📁 Input                                    📁 Output
 ~/Pictures/my-photos/part1/test.png    →    ~/Pictures/my-photos-1700457797/part1/test.jpg
 ~/Pictures/my-photos/haha.png          →    ~/Pictures/my-photos-1700457797/haha.jpg
 ```
@@ -189,9 +189,9 @@ Built with:
 
 <div align="center">
 
-**Made with ❤️ by the Compressor team**
+**Made with ❤️**
 
-⭐ Star us on GitHub — it motivates us a lot!
+⭐ Star on GitHub — it motivates a lot!
 
 [Report Bug](https://github.com/bipy/compressor/issues) · [Request Feature](https://github.com/bipy/compressor/issues)
 
