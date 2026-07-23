@@ -10,7 +10,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/nickalie/go-webpbin v0.0.0-20220110095747-f10016bf2dc1
 	github.com/perkeep/heic v0.0.0-20260105010044-a57ca1ce101f
-	golang.org/x/image v0.38.0
+	golang.org/x/image v0.41.0
 	golang.org/x/term v0.45.0
 )
 
@@ -42,5 +42,5 @@ require (
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/text v0.35.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 )
