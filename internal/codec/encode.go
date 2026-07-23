@@ -8,7 +8,7 @@ import (
 	"image/png"
 	"io"
 
-	"github.com/nickalie/go-webpbin"
+	"github.com/deepteams/webp"
 )
 
 type EncodeOptions struct {
@@ -67,6 +67,5 @@ func (f *Factory) SupportsOutput(format string) bool {
 }
 
 func encodeWebP(w io.Writer, img image.Image, quality int) error {
-	enc := &webpbin.Encoder{Quality: uint(quality)}
-	return enc.Encode(w, img)
+	return webp.Encode(w, img, &webp.Options{Quality: float32(quality)})
 }
