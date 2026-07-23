@@ -34,5 +34,8 @@ func Execute() {
 		os.Exit(1)
 	}
 
-	pipeline.Run(cfg)
+	if err := pipeline.RunV2(cfg); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 }

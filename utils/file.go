@@ -15,8 +15,11 @@ func CreateAndGetFile(path string) (*os.File, error) {
 }
 
 func CreateFile(path string) error {
-	_, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0644)
-	return err
+	f, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	return f.Close()
 }
 
 func Clone(pathList []string) error {

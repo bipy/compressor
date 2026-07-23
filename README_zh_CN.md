@@ -2,197 +2,148 @@
 
 # 🗜️ Compressor
 
-### ⚡️ 高性能并行图片压缩工具
+### 批量图片压缩，开箱即用
 
-<p align="center">
-  <strong>利用并行处理技术，在数秒内压缩数千张图片</strong>
-</p>
+<br />
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/bipy/compressor)](https://goreportcard.com/report/github.com/bipy/compressor)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Go Version](https://img.shields.io/badge/Go-1.20+-00ADD8?logo=go)](https://go.dev/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/bipy/compressor/pulls)
+[![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat-square&logo=go&logoColor=white)](https://go.dev/)
+[![License](https://img.shields.io/badge/License-MIT-4caf50?style=flat-square)](LICENSE)
+[![Go Report](https://goreportcard.com/badge/github.com/bipy/compressor?style=flat-square)](https://goreportcard.com/report/github.com/bipy/compressor)
 
-[English](README.md) | [简体中文](README_zh_CN.md)
+[English](README.md) · [中文](README_zh_CN.md)
 
----
+<br />
+
+```
+compressor -i ~/Photos -t webp -q 80
+```
+
+指向一个文件夹，剩下的交给它。
 
 </div>
 
-## 📖 项目简介
-
-RAW 格式图片通常占用大量存储空间，给归档和整理工作带来挑战。**Compressor** 通过利用并行处理技术来高效压缩大批量图片，在不明显影响图像质量的前提下大幅减少文件体积。
-
-### ✨ 为什么选择 Compressor？
-
-- 🚀 **极速处理** - 并行压缩充分利用 CPU 多核性能
-- 📦 **批量处理** - 轻松处理数千张图片
-- 🎯 **智能输出** - 自动生成有序的文件夹结构
-- 🔄 **格式灵活** - 支持 JPG、PNG、WebP 格式转换
-- 🛡️ **安全可靠** - 智能处理重名文件，具备错误恢复机制
-- 🌍 **跨平台** - 完美支持 Linux、macOS 和 Windows
-
-## 🎯 核心特性
-
-| 功能 | 说明 |
-|------|------|
-| 🖥️ **命令行界面** | 简洁的命令行接口，便于自动化集成 |
-| ⚡ **并行处理** | 可自定义线程数量，优化处理性能 |
-| 🔍 **递归扫描** | 自动处理所有子目录中的图片 |
-| 📂 **智能输出** | 自动生成有序的输出文件夹或使用自定义路径 |
-| 🔄 **重名处理** | 遇到文件冲突时智能重命名 |
-| 🎨 **质量控制** | 可调节压缩质量（0-100） |
-| 📥 **格式筛选** | 指定要处理的输入格式 |
-| 📤 **格式转换** | 转换为 JPG、PNG 或 WebP 格式 |
-| 📊 **详细日志** | 全面的操作日志和统计信息 |
-| 🛡️ **异常处理** | 健壮的异常处理机制，确保处理不中断 |
-| 🌐 **跨平台** | 原生支持 Linux、macOS 和 Windows |
-
 ---
 
-## 🚀 快速开始
+## 它能做什么
 
-### 安装方式
+Compressor 拿到一堆图片，把它们变小。支持读取 JPEG、PNG、GIF、BMP、TIFF、WebP 和 HEIC，输出可以选择 JPEG、PNG 或 WebP。
 
-**使用 Go 安装：**
+它会并行处理，默认吃满你的 CPU。文件通过流式管道传输，扫描还没结束处理就已经开始了——不用干等。
+
+## 安装
+
 ```bash
 go install github.com/bipy/compressor@latest
 ```
 
-**从源码编译：**
+<details>
+<summary>想从源码编译？</summary>
+
 ```bash
 git clone https://github.com/bipy/compressor.git
 cd compressor
-go build -o compressor
+go build
 ```
 
-### 基本使用
+</details>
+
+## 试试看
 
 ```bash
-# 使用 16 线程，质量设为 80 进行压缩
-compressor -i ~/Pictures -j 16 -q 80
+# 整个文件夹
+compressor -i ~/Photos
 
-# 压缩单个文件
-compressor -i ~/Pictures/photo.png
+# 单个文件，转成 WebP
+compressor -i photo.png -o photo.webp
 
-# 转换为 WebP 格式
-compressor -i ~/Pictures -t webp -q 75
+# 缩放到 1920px 宽，质量 75
+compressor -i ~/Photos -t webp -width 1920 -q 75
 
-# 显示帮助信息
-compressor -h
+# 慢一点，对机器温柔些
+compressor -i ~/Photos -j 2
 ```
 
----
+## 所有参数
 
-## 📚 使用示例
+| 参数 | 默认值 | 作用 |
+|:-----|:-------|:-----|
+| `-i` | *（必填）* | 输入文件或目录 |
+| `-o` | 自动生成 | 输出位置 |
+| `-t` | `jpg` | 输出格式 — `jpg`、`png` 或 `webp` |
+| `-q` | `90` | 质量，1 到 100 |
+| `-j` | 全部 CPU 核心 | 工作线程数 |
+| `-accept` | 全部格式 | 要处理哪些输入格式 |
+| `-width` | 保持原始 | 最大宽度（像素） |
+| `-height` | 保持原始 | 最大高度（像素） |
 
-### 示例 1：批量压缩
-
-输入文件夹：`~/Pictures/my-photos`
-
-程序自动生成唯一 ID 并创建有序的输出结构：
-
-```
-📁 ~/Pictures/my-photos         →    📁 ~/Pictures/my-photos-1700457797
-📁 part1                        →    📁 part1
-🖼️ test.png                     →    🖼️ test.jpg
-🖼️ haha.png                     →    🖼️ haha.jpg
-```
-
-### 示例 2：递归处理
-
-自动处理所有子目录中的图片：
+## 内部原理
 
 ```
-📁 输入                                     📁 输出
-~/Pictures/my-photos/part1/test.png    →    ~/Pictures/my-photos-1700457797/part1/test.jpg
-~/Pictures/my-photos/haha.png          →    ~/Pictures/my-photos-1700457797/haha.jpg
+┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+│  发现    │───▶│  规划    │───▶│  执行    │───▶│  写入    │───▶│  报告    │
+└──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘
 ```
 
-### 示例 3：智能重名处理
+**发现** — 遍历输入目录，把文件路径流式送进管道，不需要先完整扫描一遍。
 
-检测到重复文件名时，自动进行重命名：
+**规划** — 检测每个文件的格式，算好输出放哪里，遇到重名自动处理。
+
+**执行** — 把任务分发给工作池。每个 Worker 独立完成解码、缩放、编码、写入，互不干扰。
+
+**写入** — 原子写入：先写临时文件，再重命名。中途失败也不会留下残缺文件。
+
+**报告** — 汇总各项指标，实时推送到 TUI 仪表盘。如果是管道输出，自动切换纯文本。
+
+## 终端界面
+
+在终端里运行 Compressor，你会看到一个实时仪表盘：
 
 ```
-~/Pictures/my-photos/haha.jpg     →    ~/Pictures/my-photos-1700457797/haha-1.jpg
-~/Pictures/my-photos/haha.jpeg    →    ~/Pictures/my-photos-1700457797/haha-2.jpg
+Compressor
+Total: 142 | ✓ 138 | ✗ 4 | Elapsed: 12s
+Input: 2.1GB | Output: 856MB | Ratio: 0.41 | Speed: 178.5MB/s
+[████████████████████░░░░░░░░░░] 67.2%
+
+Recent:
+  ✓ IMG_2024.jpg (2.1MB)
+  ✓ IMG_2025.jpg (1.8MB)
+  ✓ IMG_2026.jpg (2.3MB)
+
+q: 退出 │ p: 暂停 │ v: 失败详情 │ ?: 帮助
 ```
 
----
+管道输出？CI 环境？它会自动检测并切换到纯文本模式。
 
-## ⚙️ 命令行选项
+## 项目结构
 
 ```
-用法: compressor [-h] [选项]
-
-选项:
-  -h                    显示帮助信息
-  -i <路径>             输入路径（文件或目录）
-  -o <路径>             输出路径（可选，未指定时自动生成）
-  -j <数字>             并行处理的线程数量（默认: 8）
-  -q <0-100>           输出质量（默认: 90）
-  -t <格式>             输出格式: jpg/jpeg/png/webp（默认: jpg）
-  -accept <格式>        接受的输入格式（默认: "jpg jpeg png"）
-  -width <像素>         最大图片宽度（默认: 原始尺寸）
-  -height <像素>        最大图片高度（默认: 原始尺寸）
+internal/
+├── codec/       编解码 — JPEG、PNG、WebP、GIF、BMP、TIFF、HEIC
+├── discover/    流式文件遍历
+├── executor/    工作池 + panic 恢复
+├── model/       Job、Result、Summary 类型定义
+├── planner/     格式检测、路径解析、冲突处理
+├── reporter/    指标聚合
+├── transform/   缩放和自动旋转
+├── tui/         终端仪表盘（bubbletea）
+└── writer/      原子文件写入
 ```
 
-### 常用示例
+## 性能
 
-```bash
-# 使用最大线程数进行高质量压缩
-compressor -i ~/Photos -j 32 -q 95
+Apple M4 基准测试（单线程，每张图片）：
 
-# 转换 PNG 为 WebP 并限制尺寸
-compressor -i ~/Photos -t webp -width 1920 -height 1080
+| 操作 | 单张耗时 | 分配内存 | 含义 |
+|:-----|--------:|---------:|:-----|
+| 编码 JPEG | 271 μs | 7.2 KB | 约 3,700 张/秒 |
+| 编码 PNG | 539 μs | 852 KB | 约 1,850 张/秒（PNG 更重） |
+| 解码 JPEG | 152 μs | 83 KB | 约 6,500 张/秒 — 解码比编码快 |
+| 扫描 1K 文件 | 33 μs | 7.6 KB | 1000 个文件扫描只需 33ms — 发现阶段几乎零开销 |
 
-# 仅处理特定格式
-compressor -i ~/Photos -accept "png jpg" -t jpg -q 85
+> **耗时** = 处理一张图片的时间，越小越好。
+> **分配内存** = 每次操作的堆内存开销，越小 GC 压力越小。
+> 以上是单 Worker 数据。实际吞吐量随 `-j` 线程数线性增长 — 8 核 ≈ 8 倍处理速度。
 
-# 指定自定义输出目录
-compressor -i ~/Photos/raw -o ~/Photos/compressed -j 16
-```
+## 许可证
 
----
-
-## 🏗️ 工作原理
-
-1. **扫描** - 递归发现输入路径中的所有图片
-2. **筛选** - 根据 `-accept` 参数应用格式过滤
-3. **处理** - 使用工作线程并行压缩图片
-4. **转换** - 转换为目标格式（JPG/PNG/WebP）
-5. **保存** - 将压缩后的图片写入输出目录
-6. **报告** - 显示压缩统计信息和结果
-
----
-
-## 🤝 参与贡献
-
-欢迎贡献代码！请随时提交 Pull Request。对于重大更改，请先开启 issue 讨论您想要改变的内容。
-
----
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
-
----
-
-## 🙏 致谢
-
-基于以下优秀项目构建：
-- [disintegration/imaging](https://github.com/disintegration/imaging) - 图片处理
-- [go-webpbin](https://github.com/nickalie/go-webpbin) - WebP 支持
-- [charmbracelet/log](https://github.com/charmbracelet/log) - 美观的日志输出
-
----
-
-<div align="center">
-
-**用 ❤️ 制作**
-
-⭐ 给 GitHub 仓库点个星 — 这很有激励作用！
-
-[报告问题](https://github.com/bipy/compressor/issues) · [功能建议](https://github.com/bipy/compressor/issues)
-
-</div>
+[MIT](LICENSE) — 随便用。

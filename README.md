@@ -2,197 +2,148 @@
 
 # 🗜️ Compressor
 
-### ⚡️ High-Performance Parallel Image Compression Tool
+### Batch image compression that just works
 
-<p align="center">
-  <strong>Compress thousands of images in seconds with blazing-fast parallel processing</strong>
-</p>
+<br />
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/bipy/compressor)](https://goreportcard.com/report/github.com/bipy/compressor)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Go Version](https://img.shields.io/badge/Go-1.20+-00ADD8?logo=go)](https://go.dev/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/bipy/compressor/pulls)
+[![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?style=flat-square&logo=go&logoColor=white)](https://go.dev/)
+[![License](https://img.shields.io/badge/License-MIT-4caf50?style=flat-square)](LICENSE)
+[![Go Report](https://goreportcard.com/badge/github.com/bipy/compressor?style=flat-square)](https://goreportcard.com/report/github.com/bipy/compressor)
 
-[English](README.md) | [简体中文](README_zh_CN.md)
+[English](README.md) · [中文](README_zh_CN.md)
 
----
+<br />
+
+```
+compressor -i ~/Photos -t webp -q 80
+```
+
+Point it at a folder. It handles the rest.
 
 </div>
 
-## 📖 Overview
-
-RAW images often consume massive amounts of storage space, making organization and archiving challenging. **Compressor** solves this problem by leveraging parallel processing to compress large batches of images efficiently, reducing file sizes dramatically without noticeable quality loss.
-
-### ✨ Why Compressor?
-
-- 🚀 **Blazing Fast** - Parallel processing fully utilizes your CPU cores
-- 📦 **Batch Processing** - Handle thousands of images effortlessly  
-- 🎯 **Smart Output** - Auto-generates organized folder structures
-- 🔄 **Format Flexible** - Supports JPG, PNG, WebP conversion
-- 🛡️ **Safe & Reliable** - Smart duplicate handling and error recovery
-- 🌍 **Cross-Platform** - Works on Linux, macOS, and Windows
-
-## 🎯 Features
-
-| Feature | Description |
-|---------|-------------|
-| 🖥️ **CLI Interface** | Simple command-line interface for easy automation |
-| ⚡ **Parallel Processing** | Customizable thread count for optimal performance |
-| 🔍 **Recursive Scanning** | Automatically processes all images in subdirectories |
-| 📂 **Smart Output** | Auto-generates organized output folders or use custom paths |
-| 🔄 **Duplicate Handling** | Intelligent renaming when file conflicts occur |
-| 🎨 **Quality Control** | Adjustable compression quality (0-100) |
-| 📥 **Format Filtering** | Specify which input formats to process |
-| 📤 **Format Conversion** | Convert to JPG, PNG, or WebP |
-| 📊 **Detailed Logging** | Comprehensive operation logs and statistics |
-| 🛡️ **Error Handling** | Robust exception handling for uninterrupted processing |
-| 🌐 **Cross-Platform** | Native support for Linux, macOS, and Windows |
-
 ---
 
-## 🚀 Quick Start
+## What it does
 
-### Installation
+Compressor takes a pile of images and makes them smaller. It reads JPEG, PNG, GIF, BMP, TIFF, WebP, and HEIC files, then outputs JPEG, PNG, or WebP — your choice.
 
-**Using Go:**
+It runs in parallel, uses your CPU fully by default, and streams files through the pipeline so processing kicks off before the scan finishes. No waiting around.
+
+## Install
+
 ```bash
 go install github.com/bipy/compressor@latest
 ```
 
-**From Source:**
+<details>
+<summary>Prefer building from source?</summary>
+
 ```bash
 git clone https://github.com/bipy/compressor.git
 cd compressor
-go build -o compressor
+go build
 ```
 
-### Basic Usage
+</details>
+
+## Try it
 
 ```bash
-# Compress images with 16 threads at quality 80
-compressor -i ~/Pictures -j 16 -q 80
+# Everything in a folder
+compressor -i ~/Photos
 
-# Compress a single file
-compressor -i ~/Pictures/photo.png
+# One file, convert to WebP
+compressor -i photo.png -o photo.webp
 
-# Convert to WebP format
-compressor -i ~/Pictures -t webp -q 75
+# Resize to fit 1920px wide, quality 75
+compressor -i ~/Photos -t webp -width 1920 -q 75
 
-# Show help
-compressor -h
+# Slower but gentler on your machine
+compressor -i ~/Photos -j 2
 ```
 
----
+## All the knobs
 
-## 📚 Usage Examples
+| Flag | Default | What it does |
+|:-----|:--------|:-------------|
+| `-i` | *(required)* | Input file or directory |
+| `-o` | auto-generated | Where to put the output |
+| `-t` | `jpg` | Output format — `jpg`, `png`, or `webp` |
+| `-q` | `90` | Quality, from 1 to 100 |
+| `-j` | all CPU cores | Number of worker threads |
+| `-accept` | everything | Which input formats to process |
+| `-width` | keep original | Max width in pixels |
+| `-height` | keep original | Max height in pixels |
 
-### Example 1: Batch Compression
-
-Input folder: `~/Pictures/my-photos`
-
-The program automatically generates a unique ID and creates an organized output structure:
-
-```
-📁 ~/Pictures/my-photos         →    📁 ~/Pictures/my-photos-1700457797
-📁 part1                        →    📁 part1
-🖼️ test.png                     →    🖼️ test.jpg
-🖼️ haha.png                     →    🖼️ haha.jpg
-```
-
-### Example 2: Recursive Processing
-
-All images in subdirectories are processed automatically:
+## Under the hood
 
 ```
-📁 Input                                    📁 Output
-~/Pictures/my-photos/part1/test.png    →    ~/Pictures/my-photos-1700457797/part1/test.jpg
-~/Pictures/my-photos/haha.png          →    ~/Pictures/my-photos-1700457797/haha.jpg
+┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+│ Discover │───▶│  Plan    │───▶│ Execute  │───▶│  Write   │───▶│  Report  │
+└──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘
 ```
 
-### Example 3: Smart Duplicate Handling
+**Discover** walks the input directory and streams file paths into the pipeline — no upfront scan delay.
 
-When duplicate filenames are detected, automatic renaming kicks in:
+**Plan** detects each file's format, figures out where the output goes, and handles naming conflicts automatically.
+
+**Execute** hands jobs to a worker pool. Each worker decodes, resizes if needed, encodes, and writes — completely independently.
+
+**Write** uses atomic writes (write to temp, then rename). If anything fails, no partial files are left behind.
+
+**Report** aggregates metrics and feeds them to the live TUI dashboard — or plain text if you're piping output.
+
+## Terminal UI
+
+When you run Compressor in a terminal, you get a live dashboard:
 
 ```
-~/Pictures/my-photos/haha.jpg     →    ~/Pictures/my-photos-1700457797/haha-1.jpg
-~/Pictures/my-photos/haha.jpeg    →    ~/Pictures/my-photos-1700457797/haha-2.jpg
+Compressor
+Total: 142 | ✓ 138 | ✗ 4 | Elapsed: 12s
+Input: 2.1GB | Output: 856MB | Ratio: 0.41 | Speed: 178.5MB/s
+[████████████████████░░░░░░░░░░] 67.2%
+
+Recent:
+  ✓ IMG_2024.jpg (2.1MB)
+  ✓ IMG_2025.jpg (1.8MB)
+  ✓ IMG_2026.jpg (2.3MB)
+
+q: quit │ p: pause │ v: failures │ ?: help
 ```
 
----
+Piping to a file? Running in CI? It detects that and switches to plain text automatically.
 
-## ⚙️ Command Line Options
+## Project layout
 
 ```
-Usage: compressor [-h] [Options]
-
-Options:
-  -h                    Show this help message
-  -i <path>            Input path (file or directory)
-  -o <path>            Output path (optional, auto-generated if not specified)
-  -j <number>          Thread count for parallel processing (default: 8)
-  -q <0-100>           Output quality (default: 90)
-  -t <format>          Output format: jpg/jpeg/png/webp (default: jpg)
-  -accept <formats>    Accepted input formats (default: "jpg jpeg png")
-  -width <pixels>      Maximum image width (default: original size)
-  -height <pixels>     Maximum image height (default: original size)
+internal/
+├── codec/       encode and decode — JPEG, PNG, WebP, GIF, BMP, TIFF, HEIC
+├── discover/    streaming file walker
+├── executor/    worker pool with panic recovery
+├── model/       Job, Result, Summary types
+├── planner/     format detection, path resolution, collision handling
+├── reporter/    metrics aggregation
+├── transform/   resize and auto-orientation
+├── tui/         terminal dashboard (bubbletea)
+└── writer/      atomic file writes
 ```
 
-### Common Examples
+## Performance
 
-```bash
-# High-quality compression with maximum threads
-compressor -i ~/Photos -j 32 -q 95
+Benchmarks on Apple M4 (single-threaded, per operation):
 
-# Convert PNG to WebP with size limit
-compressor -i ~/Photos -t webp -width 1920 -height 1080
+| Operation | Time per image | Allocated memory | What it means |
+|:----------|---------------:|-----------------:|:--------------|
+| Encode JPEG | 271 μs | 7.2 KB | ~3,700 images/sec |
+| Encode PNG | 539 μs | 852 KB | ~1,850 images/sec (PNG is heavier) |
+| Decode JPEG | 152 μs | 83 KB | ~6,500 images/sec — decode is faster than encode |
+| Scan 1K files | 33 μs | 7.6 KB | 1000 files scanned in 33ms — discovery is nearly free |
 
-# Process only specific formats
-compressor -i ~/Photos -accept "png jpg" -t jpg -q 85
+> **Latency** = time to process one image. Lower is better.
+> **Allocated memory** = heap memory used per operation. Lower means less GC pressure.
+> These are single-worker numbers. Actual throughput scales linearly with `-j` threads — 8 cores ≈ 8× the images/sec.
 
-# Specify custom output directory
-compressor -i ~/Photos/raw -o ~/Photos/compressed -j 16
-```
+## License
 
----
-
-## 🏗️ How It Works
-
-1. **Scan** - Recursively discovers all images in the input path
-2. **Filter** - Applies format filters based on `-accept` parameter
-3. **Process** - Compresses images in parallel using worker threads
-4. **Convert** - Transforms to target format (JPG/PNG/WebP)
-5. **Save** - Writes compressed images to output directory
-6. **Report** - Displays compression statistics and results
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-Built with:
-- [disintegration/imaging](https://github.com/disintegration/imaging) - Image processing
-- [go-webpbin](https://github.com/nickalie/go-webpbin) - WebP support
-- [charmbracelet/log](https://github.com/charmbracelet/log) - Beautiful logging
-
----
-
-<div align="center">
-
-**Made with ❤️**
-
-⭐ Star on GitHub — it motivates a lot!
-
-[Report Bug](https://github.com/bipy/compressor/issues) · [Request Feature](https://github.com/bipy/compressor/issues)
-
-</div>
+[MIT](LICENSE) — use it however you like.

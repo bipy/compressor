@@ -22,6 +22,11 @@ type Config struct {
 }
 
 func (cfg *Config) Check() bool {
+	if cfg.ThreadCount <= 0 {
+		log.Errorf("[Config] thread count should be greater than 0. threadCount=%d", cfg.ThreadCount)
+		return false
+	}
+
 	// check quality
 	if cfg.Quality < constant.QualityMin || cfg.Quality > constant.QualityMax {
 		log.Errorf("[Config] quality value should between %d and %d. quality=%d",
@@ -55,11 +60,16 @@ func (cfg *Config) Check() bool {
 		// output: dir_id / out
 		cfg.SingleFileMode = false
 		if cfg.OutputPath != "" {
+			cfg.OutputPath, err = filepath.Abs(cfg.OutputPath)
+			if err != nil {
+				log.Errorf("[Config] get output abs path failed. err=%v", err)
+				return false
+			}
+			cfg.OutputPath = filepath.Clean(cfg.OutputPath)
 			if cfg.InputPath == cfg.OutputPath {
 				log.Errorf("[Config] output path == input path.")
 				return false
 			}
-			cfg.OutputPath = filepath.Clean(cfg.OutputPath)
 		} else {
 			cfg.OutputPath = cfg.InputPath + "-" + constant.ID
 		}
@@ -69,6 +79,11 @@ func (cfg *Config) Check() bool {
 		// output: same dir / out
 		cfg.SingleFileMode = true
 		if cfg.OutputPath != "" {
+			cfg.OutputPath, err = filepath.Abs(cfg.OutputPath)
+			if err != nil {
+				log.Errorf("[Config] get output abs path failed. err=%v", err)
+				return false
+			}
 			cfg.OutputPath = filepath.Clean(cfg.OutputPath)
 		} else {
 			cfg.OutputPath = filepath.Dir(cfg.InputPath)
